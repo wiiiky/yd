@@ -5,7 +5,7 @@ TARGET=detect
 LDFALGS=-lpcap
 CFLAGS=-o $(TARGET)
 
-SOURCE=main.c detect.c
+SOURCE=main.c detect.c wlist.c
 
 all:detect listen
 

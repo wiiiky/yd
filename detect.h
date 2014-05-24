@@ -9,6 +9,7 @@
 #include <linux/if_ether.h>
 #include <linux/ip.h>
 #include <linux/tcp.h>
+#include <inttypes.h>
 
 /* 抓取数据包的回调函数 */
 void capture_packet(unsigned char *arg,const struct pcap_pkthdr *pkthdr,
