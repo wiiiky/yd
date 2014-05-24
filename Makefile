@@ -13,7 +13,7 @@ detect:$(SOURCE)
 	$(CC) $(SOURCE) $(CFLAGS) $(LDFALGS)
 
 listen:listen.c
-	$(CC) listen.c -o listen
+	$(CC) listen.c -o listen -pthread
 
 clean:
 	-rm $(TARGET) listen
