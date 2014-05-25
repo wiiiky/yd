@@ -10,8 +10,8 @@
 /* 一个syn+ack数据包的信息 */
 typedef struct {
 	uint32_t addr;		/* 地址 */
-	unsigned int seq;	/* 序号 */
-	unsigned int seq_ack;	/* 相应序号,这个不重要 */
+	uint32_t seq;	/* 序号 */
+	uint32_t seq_ack;	/* 相应序号,这个不重要 */
 }SynInfo;
 
 
