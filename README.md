@@ -22,6 +22,8 @@ TCP SYN 攻击检测
 
 比如50甚至100基本上可以认为遭到SYN攻击了
 
+###Dependency
+		libpcap，使用libpcap抓包
 
 ###TODO
 为每个捕获的SYN+ACK的数据包添加一个超时判定，因为所谓的攻击，
