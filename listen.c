@@ -12,41 +12,42 @@ static void *listen_on_port(void *arg);
 
 int main(int argc, char *argv[])
 {
-	if(argc<2){
-		return -1;
-	}
+    if (argc < 2) {
+        return -1;
+    }
 
-	int i;
-	pthread_t tid;
-	for(i=1;i<argc;i++){
-		pthread_create(&tid,NULL,listen_on_port,argv[i]);
-		pthread_detach(tid);
-	}
+    int i;
+    pthread_t tid;
+    for (i = 1; i < argc; i++) {
+        pthread_create(&tid, NULL, listen_on_port, argv[i]);
+        pthread_detach(tid);
+    }
 
-	while(1){}
+    while (1) {
+    }
 
-	return 0;
+    return 0;
 }
 
 static void *listen_on_port(void *arg)
 {
-	unsigned short port=atoi((char*)arg);
+    unsigned short port = atoi((char *) arg);
 
-	int sockfd=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+    int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-	struct sockaddr_in addr;
-	addr.sin_family=AF_INET;
-	addr.sin_port=htons(port);
-	addr.sin_addr.s_addr=htonl(INADDR_ANY);
-	bind(sockfd,(struct sockaddr*)&addr,sizeof(addr));
-	listen(sockfd,100);
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    bind(sockfd, (struct sockaddr *) &addr, sizeof(addr));
+    listen(sockfd, 100);
 
-	printf("listen on port %u\n",port);
+    printf("listen on port %u\n", port);
 
-	socklen_t len;
-	while(accept(sockfd,(struct sockaddr*)&addr,&len)>0){
-		printf("%u\n",port);
-	}
+    socklen_t len;
+    while (accept(sockfd, (struct sockaddr *) &addr, &len) > 0) {
+        printf("%u\n", port);
+    }
 
-	return NULL;
+    return NULL;
 }

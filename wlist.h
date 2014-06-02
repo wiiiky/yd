@@ -15,9 +15,9 @@
 /* 通用的双向链表 */
 typedef struct _WList WList;
 struct _WList {
-	WList *prev;
-	WList *next;
-	void *data;
+    WList *prev;
+    WList *next;
+    void *data;
 };
 
 /* 
@@ -131,7 +131,7 @@ WList *w_list_find(WList * list, const void *data);
  * the desired element is found
  */
 WList *w_list_find_custom(WList * list, WCompareFunc func,
-						  const void *data);
+                          const void *data);
 
 /* return a new element */
 WList *w_list_alloc(void *data);

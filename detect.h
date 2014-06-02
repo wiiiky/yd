@@ -12,8 +12,8 @@
 #include <inttypes.h>
 
 /* 抓取数据包的回调函数 */
-void capture_packet(unsigned char *arg,const struct pcap_pkthdr *pkthdr,
-			const unsigned char *packet);
+void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
+                    const unsigned char *packet);
 
 /* 
  * @description 打开指定的网络接口，并设置数据包过滤规则
@@ -21,5 +21,4 @@ void capture_packet(unsigned char *arg,const struct pcap_pkthdr *pkthdr,
  * @param bpf, Berkeley Packet Filter， 数据包过滤规则
  * @return 返回pcap_t的指针
  * */
-pcap_t *capture_live(const char *iface,const char *bpf);
-
+pcap_t *capture_live(const char *iface, const char *bpf);
