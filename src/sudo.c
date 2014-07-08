@@ -19,8 +19,6 @@
 #include "sudo.h"
 
 #include <unistd.h>
-#include <signal.h>
-#include <termios.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/capability.h>
@@ -29,11 +27,10 @@
 int yd_have_capabilities(uint32_t cap)
 {
     struct __user_cap_header_struct hdrp = {
-        0,
+        _LINUX_CAPABILITY_VERSION_1,
         getpid()
     };
     struct __user_cap_data_struct datap;
-    capget(&hdrp, &datap);      /* get version of capability */
 
     if (capget(&hdrp, &datap)) {
         return 0;

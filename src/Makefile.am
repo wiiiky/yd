@@ -10,8 +10,7 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS =\
 	 -Wall\
-	 -g \
-	 -fsanitize=address
+	 -g 
 
 bin_PROGRAMS = yd
 
