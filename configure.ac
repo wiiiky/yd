@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl Created by Anjuta application wizard.
 
-AC_INIT(yuan, 0.1)
+AC_INIT(yd, 0.1)
 
 AC_CONFIG_HEADERS([config.h])
 
@@ -19,7 +19,7 @@ dnl Internationalization
 dnl ***************************************************************************
 IT_PROG_INTLTOOL([0.35.0])
 
-GETTEXT_PACKAGE=yuan
+GETTEXT_PACKAGE=yd
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
 
@@ -32,12 +32,18 @@ AM_GLIB_GNU_GETTEXT
 LT_INIT
 
 
-PKG_CHECK_MODULES(YUAN, [gtk+-3.0 ])
+PKG_CHECK_MODULES(YD, [gtk+-3.0 ])
 
 AC_CHECK_LIB(pcap,pcap_open_live,[],
 			 [
 			  echo ""
 			  echo "	Error! libpcap is not installed."
+			  exit -1
+			  ])
+AC_CHECK_LIB(cap,capget,[],
+			 [
+			  echo ""
+			  echo "	Error! libcap-dev is not installed."
 			  exit -1
 			  ])
 

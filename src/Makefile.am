@@ -6,18 +6,18 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
-	$(YUAN_CFLAGS)
+	$(YD_CFLAGS)
 
 AM_CFLAGS =\
 	 -Wall\
 	 -g
 
-bin_PROGRAMS = yuan
+bin_PROGRAMS = yd
 
-yuan_SOURCES = \
+yd_SOURCES = \
 	main.c
 
-yuan_LDFLAGS = -lpcap
+yd_LDFLAGS = -lpcap
 
-yuan_LDADD = $(YUAN_LIBS)
+yd_LDADD = $(YD_LIBS)
 

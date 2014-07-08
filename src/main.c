@@ -27,4 +27,3 @@ int main()
     pcap_t *device = pcap_open_live("wlan0", 65535, 0, 0, errbuf);
     return (0);
 }
-

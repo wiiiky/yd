@@ -24,8 +24,8 @@
 /* Define if your <locale.h> file defines LC_MESSAGES. */
 #undef HAVE_LC_MESSAGES
 
-/* Define to 1 if you have the `cap' library (-lcap). */
-#undef HAVE_LIBCAP
+/* Define to 1 if you have the `cap-dev' library (-lcap-dev). */
+#undef HAVE_LIBCAP_DEV
 
 /* Define to 1 if you have the `pcap' library (-lpcap). */
 #undef HAVE_LIBPCAP

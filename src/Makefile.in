@@ -78,7 +78,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = yuan$(EXEEXT)
+bin_PROGRAMS = yd$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -92,17 +92,17 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_yuan_OBJECTS = main.$(OBJEXT)
-yuan_OBJECTS = $(am_yuan_OBJECTS)
+am_yd_OBJECTS = main.$(OBJEXT)
+yd_OBJECTS = $(am_yd_OBJECTS)
 am__DEPENDENCIES_1 =
-yuan_DEPENDENCIES = $(am__DEPENDENCIES_1)
+yd_DEPENDENCIES = $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-yuan_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+yd_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(yuan_LDFLAGS) $(LDFLAGS) -o $@
+	$(yd_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -137,8 +137,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(yuan_SOURCES)
-DIST_SOURCES = $(yuan_SOURCES)
+SOURCES = $(yd_SOURCES)
+DIST_SOURCES = $(yd_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -256,8 +256,8 @@ STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
 XGETTEXT = @XGETTEXT@
-YUAN_CFLAGS = @YUAN_CFLAGS@
-YUAN_LIBS = @YUAN_LIBS@
+YD_CFLAGS = @YD_CFLAGS@
+YD_LIBS = @YD_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -316,17 +316,17 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
-	$(YUAN_CFLAGS)
+	$(YD_CFLAGS)
 
 AM_CFLAGS = \
 	 -Wall\
 	 -g
 
-yuan_SOURCES = \
+yd_SOURCES = \
 	main.c
 
-yuan_LDFLAGS = -lpcap
-yuan_LDADD = $(YUAN_LIBS)
+yd_LDFLAGS = -lpcap
+yd_LDADD = $(YD_LIBS)
 all: all-am
 
 .SUFFIXES:
@@ -411,9 +411,9 @@ clean-binPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
-yuan$(EXEEXT): $(yuan_OBJECTS) $(yuan_DEPENDENCIES) $(EXTRA_yuan_DEPENDENCIES) 
-	@rm -f yuan$(EXEEXT)
-	$(AM_V_CCLD)$(yuan_LINK) $(yuan_OBJECTS) $(yuan_LDADD) $(LIBS)
+yd$(EXEEXT): $(yd_OBJECTS) $(yd_DEPENDENCIES) $(EXTRA_yd_DEPENDENCIES) 
+	@rm -f yd$(EXEEXT)
+	$(AM_V_CCLD)$(yd_LINK) $(yd_OBJECTS) $(yd_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
