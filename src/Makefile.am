@@ -10,12 +10,15 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS =\
 	 -Wall\
-	 -g
+	 -g \
+	 -fsanitize=address
 
 bin_PROGRAMS = yd
 
 yd_SOURCES = \
-	main.c
+	main.c \
+	sudo.c \
+	sudo.h
 
 yd_LDFLAGS = -lpcap
 

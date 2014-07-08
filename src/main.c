@@ -19,10 +19,12 @@
 
 #include <stdio.h>
 #include <pcap.h>
+#include "sudo.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-    printf("Hello world\n");
+    yd_sudo(argc, argv);
+
     char errbuf[1024];
     pcap_t *device = pcap_open_live("wlan0", 65535, 0, 0, errbuf);
     return (0);

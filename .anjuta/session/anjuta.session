@@ -3,7 +3,7 @@ Maximized=1
 Geometry=1301x744+65+24
 
 [File Loader]
-Files=../../src/main.c#27
+Files=../../src/main.c#27%%%../../src/sudo.c#30%%%../../src/sudo.h#33
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
@@ -13,7 +13,7 @@ Run in terminal=2
 Working directories=../../.
 
 [Project Manager]
-Expand=yd%%%yd//src%%%yd//src//yd%%%yd//dist_doc
+Expand=yd%%%yd//src%%%yd//src//yd%%%yd//dist_doc%%%yd//YD
 
 [Build]
 Configuration list=1:Default:%%%1:Debug:Debug%%%1:Profiling:Profiling%%%1:Optimized:Optimized%%%1:MinGW32:MinGW32
