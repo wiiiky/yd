@@ -18,14 +18,19 @@
  */
 
 #include <stdio.h>
-#include <pcap.h>
-#include "sudo.h"
+#include "yd.h"
 
 int main(int argc, char *argv[])
 {
-    yd_sudo(argc, argv);
+    yd_init(argc, argv);
 
-    char errbuf[1024];
-    pcap_t *device = pcap_open_live("wlan0", 65535, 0, 0, errbuf);
+    GtkWindow *window = (GtkWindow *) gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_default_size(window, 450, 360);
+    gtk_window_set_position(window, GTK_WIN_POS_CENTER);
+    g_signal_connect(G_OBJECT(window), "destroy",
+                     G_CALLBACK(gtk_main_quit), NULL);
+
+    gtk_widget_show_all(GTK_WIDGET(window));
+    gtk_main();
     return (0);
 }

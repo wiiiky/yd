@@ -3,17 +3,18 @@ Maximized=1
 Geometry=1301x744+65+24
 
 [File Loader]
-Files=../../src/main.c#27%%%../../src/sudo.c#30%%%../../src/sudo.h#33
+Files=../../src/main.c#29%%%../../src/sudo.c#30%%%../../src/sudo.h#20%%%../../src/yd.h#27%%%../../src/yd.c#25
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
 
 [Execution]
+Program uri=../../Debug/src/yd
 Run in terminal=2
 Working directories=../../.
 
 [Project Manager]
-Expand=yd%%%yd//src%%%yd//src//yd%%%yd//dist_doc%%%yd//YD
+Expand=yd%%%yd//src%%%yd//src//yd%%%yd//dist_doc%%%yd//YD%%%yd//YD//gtk+-3.0
 
 [Build]
 Configuration list=1:Default:%%%1:Debug:Debug%%%1:Profiling:Profiling%%%1:Optimized:Optimized%%%1:MinGW32:MinGW32

@@ -17,7 +17,9 @@ bin_PROGRAMS = yd
 yd_SOURCES = \
 	main.c \
 	sudo.c \
-	sudo.h
+	sudo.h \
+	yd.h \
+	yd.c
 
 yd_LDFLAGS = -lpcap
 
