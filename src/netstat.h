@@ -1,5 +1,5 @@
 /*
- * yd.h
+ * netstat.h
  *
  * Copyright (C) 2014 - Wiky L
  *
@@ -16,17 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __YD_YD_H__
-#define __YD_YD_H__
-
-#include "sudo.h"
-#include "netstat.h"
-#include <gtk/gtk.h>
-#include <pcap.h>
-#include <fcntl.h>
+#ifndef __YD_NETSTAT_H__
+#define __YD_NETSTAT_H__
 
 
-void yd_init(int argc, char **argv);
+#include "whashtable.h"
 
+
+#define TCPSTAT_FILE    "/proc/net/tcp"
+
+typedef WHashTable TcpStat;
+
+
+
+TcpStat *ns_stat_tcp_new();
+
+void ns_stat_tcp_free(TcpStat * stat);
 
 #endif

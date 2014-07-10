@@ -30,6 +30,9 @@ int main(int argc, char *argv[])
     g_signal_connect(G_OBJECT(window), "destroy",
                      G_CALLBACK(gtk_main_quit), NULL);
 
+    TcpStat *stat = ns_stat_tcp_new();
+    ns_stat_tcp_free(stat);
+
     gtk_widget_show_all(GTK_WIDGET(window));
     gtk_main();
     return (0);

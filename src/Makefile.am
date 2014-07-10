@@ -22,7 +22,13 @@ yd_SOURCES = \
 	yd.h \
 	yd.c \
 	wio.h \
-	wio.c
+	wio.c \
+	wlist.h \
+	wlist.c \
+	whashtable.h \
+	whashtable.c \
+	netstat.c \
+	netstat.h
 
 yd_LDFLAGS = -lpcap
 
