@@ -19,6 +19,7 @@
 
 #include "netstat.h"
 #include "wio.h"
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -49,6 +50,80 @@ static void ns_stat_title_free(void *data)
     free(data);
 }
 
+static int is_validchar(char c)
+{
+    if (c >= '!' && c <= '~') {
+        return 1;
+    }
+    return 0;
+}
+
+typedef struct {
+    const char *pos;
+    unsigned int len;
+} LineItem;
+
+static void ns_stat_line_free(char **eles, unsigned int size)
+{
+    free(eles);
+}
+
+static void ns_stat_line_free_full(char **eles, unsigned int size)
+{
+    int i;
+    for (i = 0; i < size; i++) {
+        free(eles[i]);
+    }
+    free(eles);
+}
+
+static char **ns_stat_parse_line(const char *line, unsigned int *length)
+{
+    WList *list = w_list_new();
+
+    unsigned int size = 0;
+
+    while (*line) {
+        if (is_validchar(*line)) {
+            size++;
+            const char *ptr = line;
+            unsigned int len = 0;
+            while (is_validchar(*ptr)) {
+                len++;
+                ptr++;
+            }
+            LineItem *item = (LineItem *) malloc(sizeof(LineItem));
+            item->pos = line;
+            item->len = len;
+            list = w_list_append(list, item);
+            if (*ptr == '\0') {
+                break;
+            }
+            line = ptr;
+        }
+        line++;
+    }
+
+    if (size == 0) {
+        w_list_free_full(list, free);
+        return NULL;
+    }
+
+    char **elements = (char **) malloc(sizeof(char *) * size);
+
+    WList *ptr = list;
+    int i = 0;
+    while (ptr) {
+        LineItem *item = (LineItem *) w_list_data(ptr);
+        elements[i++] = strndup(item->pos, item->len);
+        ptr = w_list_next(ptr);
+    }
+    w_list_free_full(list, free);
+    *length = size;
+
+    return elements;
+}
+
 #define LINE_BUF_SIZE   (1024)
 
 TcpStat *ns_stat_tcp_new()
@@ -61,9 +136,43 @@ TcpStat *ns_stat_tcp_new()
     ns_stat_open_tcp();
     char buf[LINE_BUF_SIZE];
     int n;
-    while ((n = w_readline(tcpfd, buf, LINE_BUF_SIZE)) > 0) {
-        printf("%s", buf);
+    /* first line: TITLE */
+    if ((n = w_readline(tcpfd, buf, LINE_BUF_SIZE)) <= 0) {
+        return stat;            /* return an empty TcpStat */
     }
+    unsigned int size;
+    int i;
+    char **titles = ns_stat_parse_line(buf, &size);
+    if (titles == NULL) {
+        return stat;
+    }
+    /* initialize lists */
+    WList **lists = (WList **) malloc(sizeof(WList *) * size);
+    for (i = 0; i < size; i++) {
+        lists[i] = NULL;
+    }
+
+    while ((n = w_readline(tcpfd, buf, LINE_BUF_SIZE)) > 0) {
+        unsigned int len;
+        char **eles = ns_stat_parse_line(buf, &len);
+        if (eles) {
+            if (len >= size) {
+                for (i = 0; i < size; i++) {
+                    lists[i] = w_list_append(lists[i], eles[i]);
+                }
+                ns_stat_line_free(eles, len);
+            } else {
+                ns_stat_line_free_full(eles, len);
+            }
+        }
+    }
+
+    for (i = 0; i < size; i++) {
+        w_hash_table_insert(stat, titles[i], lists[i]);
+    }
+
+    ns_stat_line_free(titles, size);
+    free(lists);
     return stat;
 }
 

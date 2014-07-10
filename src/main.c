@@ -31,6 +31,12 @@ int main(int argc, char *argv[])
                      G_CALLBACK(gtk_main_quit), NULL);
 
     TcpStat *stat = ns_stat_tcp_new();
+    WList *rem_address = w_hash_table_find(stat, "rem_address");
+    while (rem_address) {
+        char *data = w_list_data(rem_address);
+        printf("%s\n", data);
+        rem_address = w_list_next(rem_address);
+    }
     ns_stat_tcp_free(stat);
 
     gtk_widget_show_all(GTK_WIDGET(window));
