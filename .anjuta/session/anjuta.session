@@ -3,7 +3,7 @@ Maximized=1
 Geometry=1301x744+65+24
 
 [File Loader]
-Files=../../src/main.c#29%%%../../src/sudo.c#30%%%../../src/sudo.h#20%%%../../src/yd.h#27%%%../../src/yd.c#25
+Files=../../src/main.c#29%%%../../src/sudo.c#30%%%../../src/sudo.h#20%%%../../src/yd.h#23%%%../../src/yd.c#6%%%../../src/wio.h#1%%%../../src/wio.c#304
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n

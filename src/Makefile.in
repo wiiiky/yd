@@ -92,7 +92,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_yd_OBJECTS = main.$(OBJEXT) sudo.$(OBJEXT) yd.$(OBJEXT)
+am_yd_OBJECTS = main.$(OBJEXT) sudo.$(OBJEXT) yd.$(OBJEXT) \
+	wio.$(OBJEXT)
 yd_OBJECTS = $(am_yd_OBJECTS)
 am__DEPENDENCIES_1 =
 yd_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -320,14 +321,17 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS = \
 	 -Wall\
-	 -g 
+	 -g \
+	 -pthread
 
 yd_SOURCES = \
 	main.c \
 	sudo.c \
 	sudo.h \
 	yd.h \
-	yd.c
+	yd.c \
+	wio.h \
+	wio.c
 
 yd_LDFLAGS = -lpcap
 yd_LDADD = $(YD_LIBS)
@@ -427,6 +431,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sudo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/yd.Po@am__quote@
 
 .c.o:

@@ -10,7 +10,8 @@ AM_CPPFLAGS = \
 
 AM_CFLAGS =\
 	 -Wall\
-	 -g 
+	 -g \
+	 -pthread
 
 bin_PROGRAMS = yd
 
@@ -19,7 +20,9 @@ yd_SOURCES = \
 	sudo.c \
 	sudo.h \
 	yd.h \
-	yd.c
+	yd.c \
+	wio.h \
+	wio.c
 
 yd_LDFLAGS = -lpcap
 

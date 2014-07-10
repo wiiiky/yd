@@ -20,6 +20,7 @@
 #define __YD_YD_H__
 
 #include "sudo.h"
+#include "wio.h"
 #include <gtk/gtk.h>
 #include <pcap.h>
 
