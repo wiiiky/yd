@@ -30,14 +30,14 @@ int main(int argc, char *argv[])
     g_signal_connect(G_OBJECT(window), "destroy",
                      G_CALLBACK(gtk_main_quit), NULL);
 
-    TcpStat *stat = ns_stat_tcp_new();
-    WList *rem_address = w_hash_table_find(stat, "rem_address");
-    while (rem_address) {
-        char *data = w_list_data(rem_address);
-        printf("%s\n", data);
-        rem_address = w_list_next(rem_address);
+    WList *list = proc_net_tcp_open();
+    WList *ptr = list;
+    while (ptr) {
+        ProcNetTcp *tcp = w_list_data(ptr);
+        printf("%s\t%s\t%s\t%s\n", tcp->sl, tcp->local_address,
+               tcp->rem_address, tcp->st);
+        ptr = w_list_next(ptr);
     }
-    ns_stat_tcp_free(stat);
 
     gtk_widget_show_all(GTK_WIDGET(window));
     gtk_main();

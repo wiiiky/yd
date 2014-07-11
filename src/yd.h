@@ -20,7 +20,7 @@
 #define __YD_YD_H__
 
 #include "sudo.h"
-#include "netstat.h"
+#include "proc_net.h"
 #include <gtk/gtk.h>
 #include <pcap.h>
 #include <fcntl.h>

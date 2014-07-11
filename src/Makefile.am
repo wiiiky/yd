@@ -27,8 +27,8 @@ yd_SOURCES = \
 	wlist.c \
 	whashtable.h \
 	whashtable.c \
-	netstat.c \
-	netstat.h
+	proc_net.c \
+	proc_net.h
 
 yd_LDFLAGS = -lpcap
 
