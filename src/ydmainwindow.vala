@@ -40,17 +40,22 @@ namespace Yd{
 						AccelFlags.VISIBLE);
 
 			var vbox=new Box(Orientation.VERTICAL,5);
+			vbox.set_border_width(6);
 			mainbox.pack_start(vbox,true,true,0);
-			var notebook=new Notebook();
-			vbox.pack_start(notebook,true,true,0);
 
-			var title=new Label(this.tcp_tab_label);
-			var content=new Label("Content!!!!!!!");
-			notebook.append_page(content,title);
+			StackSwitcher switcher=new StackSwitcher();
+			vbox.pack_start(switcher,false,false,0);
 
-			title=new Label(this.udp_tab_label);
-			content=new Label("Content!!!!!!");
-			notebook.append_page(content,title);
+			Stack stack=new Stack();
+			switcher.set_stack(stack);
+			stack.set_transition_duration(1000);
+			stack.set_transition_type(StackTransitionType.SLIDE_LEFT_RIGHT);
+			vbox.pack_start(stack,true,true,0);
+
+			stack.add_titled(new Label("TCP..."),"label1",
+						this.tcp_tab_label);
+			stack.add_titled(new Label("UDP..."),"label2",
+						this.udp_tab_label);
 		}
 
 		private void about_item_activate(){
