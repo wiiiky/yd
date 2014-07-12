@@ -29,11 +29,9 @@ struct _YdMainWindowClass {
 
 
 GType yd_main_window_get_type(void) G_GNUC_CONST;
+void yd_main_window_show(YdMainWindow * self);
 YdMainWindow *yd_main_window_new(void);
 YdMainWindow *yd_main_window_construct(GType object_type);
-
-
-void yd_main_window_show(YdMainWindow * window);
 
 
 G_END_DECLS

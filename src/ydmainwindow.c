@@ -5,22 +5,32 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "ydmainwindow.h"
+#include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
-#include <gtk/gtk.h>
 #include <gdk/gdk.h>
 
-#define _g_free0(var) (var = (g_free (var), NULL))
+
+#define YD_MAIN_WINDOW_TYPE_TCP_COLUMNS (yd_main_window_tcp_columns_get_type ())
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
+#define _g_free0(var) (var = (g_free (var), NULL))
 typedef struct _Block1Data Block1Data;
 
 struct _YdMainWindowPrivate {
-    gchar *tcp_tab_label;
-    gchar *udp_tab_label;
     GtkStack *stack;
     GtkTreeView *tcpview;
     GtkTreeView *udpview;
 };
+
+typedef enum {
+    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO = 0,
+    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
+    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
+    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
+    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_TRQUEUE,
+    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REQUEUE,
+    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID
+} YdMainWindowTcpColumns;
 
 struct _Block1Data {
     int _ref_count_;
@@ -35,6 +45,18 @@ static gpointer yd_main_window_parent_class = NULL;
 enum {
     YD_MAIN_WINDOW_DUMMY_PROPERTY
 };
+static GType yd_main_window_tcp_columns_get_type(void) G_GNUC_UNUSED;
+#define YD_MAIN_WINDOW_TCP_TAB_TITLE "  TCP  "
+#define YD_MAIN_WINDOW_UDP_TAB_TITLE "  UDP  "
+#define YD_MAIN_WINDOW_TCP_TAB_NAME "tcp"
+#define YD_MAIN_WINDOW_UDP_TAB_NAME "udp"
+#define YD_MAIN_WINDOW_TCP_HDR_NO " No. "
+#define YD_MAIN_WINDOW_TCP_HDR_LOCAL " local address "
+#define YD_MAIN_WINDOW_TCP_HDR_REMOTE " remote address "
+#define YD_MAIN_WINDOW_TCP_HDR_STATE " state "
+#define YD_MAIN_WINDOW_TCP_HDR_TRQUEUE " transmit queue "
+#define YD_MAIN_WINDOW_TCP_HDR_REQUEUE " receive queue "
+#define YD_MAIN_WINDOW_TCP_HDR_UID " uid "
 static void _gtk_main_quit_gtk_widget_destroy(GtkWidget * _sender,
                                               gpointer self);
 static void yd_main_window_about_item_activate(YdMainWindow * self);
@@ -54,6 +76,46 @@ static void _vala_array_destroy(gpointer array, gint array_length,
                                 GDestroyNotify destroy_func);
 static void _vala_array_free(gpointer array, gint array_length,
                              GDestroyNotify destroy_func);
+
+
+static GType yd_main_window_tcp_columns_get_type(void)
+{
+    static volatile gsize yd_main_window_tcp_columns_type_id__volatile = 0;
+    if (g_once_init_enter(&yd_main_window_tcp_columns_type_id__volatile)) {
+        static const GEnumValue values[] =
+            { {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO,
+               "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO", "tcp-col-no"},
+            {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
+             "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR",
+             "tcp-col-localaddr"},
+            {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
+             "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR",
+             "tcp-col-remoteaddr"},
+            {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
+             "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE", "tcp-col-state"},
+            {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_TRQUEUE,
+             "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_TRQUEUE",
+             "tcp-col-trqueue"},
+            {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REQUEUE,
+             "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REQUEUE",
+             "tcp-col-requeue"}, {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID,
+                                  "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID",
+                                  "tcp-col-uid"}, {0, NULL, NULL} };
+        GType yd_main_window_tcp_columns_type_id;
+        yd_main_window_tcp_columns_type_id =
+            g_enum_register_static("YdMainWindowTcpColumns", values);
+        g_once_init_leave(&yd_main_window_tcp_columns_type_id__volatile,
+                          yd_main_window_tcp_columns_type_id);
+    }
+    return yd_main_window_tcp_columns_type_id__volatile;
+}
+
+
+void yd_main_window_show(YdMainWindow * self)
+{
+    g_return_if_fail(self != NULL);
+    gtk_widget_show_all((GtkWidget *) self);
+}
 
 
 static void _gtk_main_quit_gtk_widget_destroy(GtkWidget * _sender,
@@ -137,13 +199,11 @@ YdMainWindow *yd_main_window_construct(GType object_type)
     GtkCellRendererText *_tmp46_ = NULL;
     GtkStack *_tmp47_ = NULL;
     GtkTreeView *_tmp48_ = NULL;
-    const gchar *_tmp49_ = NULL;
-    GtkStack *_tmp50_ = NULL;
-    GtkTreeView *_tmp51_ = NULL;
-    const gchar *_tmp52_ = NULL;
-    GtkStack *_tmp53_ = NULL;
-    GtkLabel *_tmp54_ = NULL;
-    GtkLabel *_tmp55_ = NULL;
+    GtkStack *_tmp49_ = NULL;
+    GtkTreeView *_tmp50_ = NULL;
+    GtkStack *_tmp51_ = NULL;
+    GtkLabel *_tmp52_ = NULL;
+    GtkLabel *_tmp53_ = NULL;
     self = (YdMainWindow *) g_object_new(object_type, NULL);
     gtk_window_set_title((GtkWindow *) self, "Network Detection");
     g_object_set((GtkWindow *) self, "window-position", GTK_WIN_POS_CENTER,
@@ -223,8 +283,9 @@ YdMainWindow *yd_main_window_construct(GType object_type)
     _tmp16_ = self->priv->stack;
     gtk_box_pack_start(vbox, (GtkWidget *) _tmp16_, TRUE, TRUE, (guint) 0);
     _tmp17_ =
-        gtk_list_store_new(6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-                           G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+        gtk_list_store_new(7, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+                           G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+                           G_TYPE_STRING);
     store = _tmp17_;
     _tmp18_ = store;
     _tmp19_ =
@@ -238,43 +299,60 @@ YdMainWindow *yd_main_window_construct(GType object_type)
     cell = _tmp20_;
     _tmp21_ = self->priv->tcpview;
     _tmp22_ = cell;
-    gtk_tree_view_insert_column_with_attributes(_tmp21_, -1, " No. ",
+    gtk_tree_view_insert_column_with_attributes(_tmp21_, -1,
+                                                YD_MAIN_WINDOW_TCP_HDR_NO,
                                                 (GtkCellRenderer *)
-                                                _tmp22_, "text", 0, NULL);
+                                                _tmp22_, "text",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO,
+                                                NULL);
     _tmp23_ = self->priv->tcpview;
     _tmp24_ = cell;
     gtk_tree_view_insert_column_with_attributes(_tmp23_, -1,
-                                                " local address ",
+                                                YD_MAIN_WINDOW_TCP_HDR_LOCAL,
                                                 (GtkCellRenderer *)
-                                                _tmp24_, "text", 0, NULL);
+                                                _tmp24_, "text",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
+                                                NULL);
     _tmp25_ = self->priv->tcpview;
     _tmp26_ = cell;
     gtk_tree_view_insert_column_with_attributes(_tmp25_, -1,
-                                                " remote address ",
+                                                YD_MAIN_WINDOW_TCP_HDR_REMOTE,
                                                 (GtkCellRenderer *)
-                                                _tmp26_, "text", 0, NULL);
+                                                _tmp26_, "text",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
+                                                NULL);
     _tmp27_ = self->priv->tcpview;
     _tmp28_ = cell;
-    gtk_tree_view_insert_column_with_attributes(_tmp27_, -1, " state ",
+    gtk_tree_view_insert_column_with_attributes(_tmp27_, -1,
+                                                YD_MAIN_WINDOW_TCP_HDR_STATE,
                                                 (GtkCellRenderer *)
-                                                _tmp28_, "text", 0, NULL);
+                                                _tmp28_, "text",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
+                                                NULL);
     _tmp29_ = self->priv->tcpview;
     _tmp30_ = cell;
     gtk_tree_view_insert_column_with_attributes(_tmp29_, -1,
-                                                " transmit-queue ",
+                                                YD_MAIN_WINDOW_TCP_HDR_TRQUEUE,
                                                 (GtkCellRenderer *)
-                                                _tmp30_, "text", 0, NULL);
+                                                _tmp30_, "text",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_TRQUEUE,
+                                                NULL);
     _tmp31_ = self->priv->tcpview;
     _tmp32_ = cell;
     gtk_tree_view_insert_column_with_attributes(_tmp31_, -1,
-                                                " receive-queue ",
+                                                YD_MAIN_WINDOW_TCP_HDR_REQUEUE,
                                                 (GtkCellRenderer *)
-                                                _tmp32_, "text", 0, NULL);
+                                                _tmp32_, "text",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REQUEUE,
+                                                NULL);
     _tmp33_ = self->priv->tcpview;
     _tmp34_ = cell;
-    gtk_tree_view_insert_column_with_attributes(_tmp33_, -1, " uid ",
+    gtk_tree_view_insert_column_with_attributes(_tmp33_, -1,
+                                                YD_MAIN_WINDOW_TCP_HDR_UID,
                                                 (GtkCellRenderer *)
-                                                _tmp34_, "text", 0, NULL);
+                                                _tmp34_, "text",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID,
+                                                NULL);
     _tmp35_ =
         gtk_list_store_new(6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
                            G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
@@ -315,18 +393,20 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 _tmp46_, "text", 0, NULL);
     _tmp47_ = self->priv->stack;
     _tmp48_ = self->priv->tcpview;
-    _tmp49_ = self->priv->tcp_tab_label;
-    gtk_stack_add_titled(_tmp47_, (GtkWidget *) _tmp48_, "tcp", _tmp49_);
-    _tmp50_ = self->priv->stack;
-    _tmp51_ = self->priv->udpview;
-    _tmp52_ = self->priv->udp_tab_label;
-    gtk_stack_add_titled(_tmp50_, (GtkWidget *) _tmp51_, "udp", _tmp52_);
-    _tmp53_ = self->priv->stack;
-    _tmp54_ = (GtkLabel *) gtk_label_new("TODO");
-    g_object_ref_sink(_tmp54_);
-    _tmp55_ = _tmp54_;
-    gtk_stack_add_titled(_tmp53_, (GtkWidget *) _tmp55_, "todo", "TODO");
-    _g_object_unref0(_tmp55_);
+    gtk_stack_add_titled(_tmp47_, (GtkWidget *) _tmp48_,
+                         YD_MAIN_WINDOW_TCP_TAB_NAME,
+                         YD_MAIN_WINDOW_TCP_TAB_TITLE);
+    _tmp49_ = self->priv->stack;
+    _tmp50_ = self->priv->udpview;
+    gtk_stack_add_titled(_tmp49_, (GtkWidget *) _tmp50_,
+                         YD_MAIN_WINDOW_UDP_TAB_NAME,
+                         YD_MAIN_WINDOW_UDP_TAB_TITLE);
+    _tmp51_ = self->priv->stack;
+    _tmp52_ = (GtkLabel *) gtk_label_new("TODO");
+    g_object_ref_sink(_tmp52_);
+    _tmp53_ = _tmp52_;
+    gtk_stack_add_titled(_tmp51_, (GtkWidget *) _tmp53_, "todo", "TODO");
+    _g_object_unref0(_tmp53_);
     _g_object_unref0(cell);
     _g_object_unref0(store);
     _g_object_unref0(switcher);
@@ -350,6 +430,12 @@ YdMainWindow *yd_main_window_new(void)
 }
 
 
+static gpointer _g_object_ref0(gpointer self)
+{
+    return self ? g_object_ref(self) : NULL;
+}
+
+
 static void yd_main_window_stack_name_changed(YdMainWindow * self)
 {
     gchar *name = NULL;
@@ -363,10 +449,42 @@ static void yd_main_window_stack_name_changed(YdMainWindow * self)
     _tmp2_ = g_strdup(_tmp1_);
     name = _tmp2_;
     _tmp3_ = name;
-    if (_tmp3_ != NULL) {
-        const gchar *_tmp4_ = NULL;
-        _tmp4_ = name;
-        g_print("%s\n", _tmp4_);
+    if (g_strcmp0(_tmp3_, YD_MAIN_WINDOW_TCP_TAB_NAME) == 0) {
+        GtkListStore *store = NULL;
+        GtkTreeView *_tmp4_ = NULL;
+        GtkTreeModel *_tmp5_ = NULL;
+        GtkListStore *_tmp6_ = NULL;
+        GtkTreeIter iter = { 0 };
+        GtkListStore *_tmp7_ = NULL;
+        GtkTreeIter _tmp8_ = { 0 };
+        GtkListStore *_tmp9_ = NULL;
+        GtkTreeIter _tmp10_ = { 0 };
+        _tmp4_ = self->priv->tcpview;
+        _tmp5_ = gtk_tree_view_get_model(_tmp4_);
+        _tmp6_ =
+            _g_object_ref0(G_TYPE_CHECK_INSTANCE_CAST
+                           (_tmp5_, GTK_TYPE_LIST_STORE, GtkListStore));
+        store = _tmp6_;
+        _tmp7_ = store;
+        gtk_list_store_append(_tmp7_, &_tmp8_);
+        iter = _tmp8_;
+        _tmp9_ = store;
+        _tmp10_ = iter;
+        gtk_list_store_set(_tmp9_, &_tmp10_,
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO, "NO",
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
+                           "local address",
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
+                           "remote address",
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
+                           "state",
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_TRQUEUE,
+                           "transmit queue",
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REQUEUE,
+                           "receive queue",
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID, "uid",
+                           -1);
+        _g_object_unref0(store);
     }
     _g_free0(name);
 }
@@ -395,9 +513,11 @@ static void block1_data_unref(void *_userdata_)
 
 static void __lambda2_(Block1Data * _data1_, gint response_id)
 {
+    YdMainWindow *self;
     gboolean _tmp0_ = FALSE;
     gint _tmp1_ = 0;
     gboolean _tmp3_ = FALSE;
+    self = _data1_->self;
     _tmp1_ = response_id;
     if (_tmp1_ == ((gint) GTK_RESPONSE_CANCEL)) {
         _tmp0_ = TRUE;
@@ -455,7 +575,7 @@ static void yd_main_window_about_item_activate(YdMainWindow * self)
     _tmp3_[1] = _tmp2_;
     _tmp4_ = _tmp3_;
     _tmp4__length1 = 2;
-    gtk_about_dialog_set_authors(_data1_->dialog, (const gchar **) _tmp4_);
+    gtk_about_dialog_set_authors(_data1_->dialog, _tmp4_);
     _tmp4_ =
         (_vala_array_free(_tmp4_, _tmp4__length1, (GDestroyNotify) g_free),
          NULL);
@@ -466,8 +586,7 @@ static void yd_main_window_about_item_activate(YdMainWindow * self)
     _tmp7_[1] = _tmp6_;
     _tmp8_ = _tmp7_;
     _tmp8__length1 = 2;
-    gtk_about_dialog_set_documenters(_data1_->dialog,
-                                     (const gchar **) _tmp8_);
+    gtk_about_dialog_set_documenters(_data1_->dialog, _tmp8_);
     _tmp8_ =
         (_vala_array_free(_tmp8_, _tmp8__length1, (GDestroyNotify) g_free),
          NULL);
@@ -506,13 +625,7 @@ static void yd_main_window_class_init(YdMainWindowClass * klass)
 
 static void yd_main_window_instance_init(YdMainWindow * self)
 {
-    gchar *_tmp0_ = NULL;
-    gchar *_tmp1_ = NULL;
     self->priv = YD_MAIN_WINDOW_GET_PRIVATE(self);
-    _tmp0_ = g_strdup("  TCP  ");
-    self->priv->tcp_tab_label = _tmp0_;
-    _tmp1_ = g_strdup("  UDP  ");
-    self->priv->udp_tab_label = _tmp1_;
 }
 
 
@@ -521,8 +634,6 @@ static void yd_main_window_finalize(GObject * obj)
     YdMainWindow *self;
     self =
         G_TYPE_CHECK_INSTANCE_CAST(obj, YD_TYPE_MAIN_WINDOW, YdMainWindow);
-    _g_free0(self->priv->tcp_tab_label);
-    _g_free0(self->priv->udp_tab_label);
     _g_object_unref0(self->priv->stack);
     _g_object_unref0(self->priv->tcpview);
     _g_object_unref0(self->priv->udpview);
@@ -568,9 +679,4 @@ static void _vala_array_free(gpointer array, gint array_length,
 {
     _vala_array_destroy(array, array_length, destroy_func);
     g_free(array);
-}
-
-void yd_main_window_show(YdMainWindow * window)
-{
-    gtk_widget_show_all(GTK_WIDGET(window));
 }

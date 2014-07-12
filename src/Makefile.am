@@ -23,10 +23,6 @@ yd_SOURCES = \
 	yd.c \
 	wio.h \
 	wio.c \
-	wlist.h \
-	wlist.c \
-	whashtable.h \
-	whashtable.c \
 	proc_net.c \
 	proc_net.h \
 	ydmainwindow.h \

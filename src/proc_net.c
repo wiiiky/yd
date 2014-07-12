@@ -95,7 +95,7 @@ typedef struct {
 
 static char **proc_net_parse_line(const char *line, unsigned int *length)
 {
-    WList *list = w_list_new();
+    GList *list = NULL;
 
     unsigned int size = 0;
 
@@ -111,7 +111,7 @@ static char **proc_net_parse_line(const char *line, unsigned int *length)
             LineItem *item = (LineItem *) malloc(sizeof(LineItem));
             item->pos = line;
             item->len = len;
-            list = w_list_append(list, item);
+            list = g_list_append(list, item);
             if (*ptr == '\0') {
                 break;
             }
@@ -121,20 +121,20 @@ static char **proc_net_parse_line(const char *line, unsigned int *length)
     }
 
     if (size == 0) {
-        w_list_free_full(list, free);
+        g_list_free_full(list, free);
         return NULL;
     }
 
     char **elements = (char **) malloc(sizeof(char *) * size);
 
-    WList *ptr = list;
+    GList *ptr = list;
     int i = 0;
     while (ptr) {
-        LineItem *item = (LineItem *) w_list_data(ptr);
+        LineItem *item = (LineItem *) ptr->data;
         elements[i++] = strndup(item->pos, item->len);
-        ptr = w_list_next(ptr);
+        ptr = g_list_next(ptr);
     }
-    w_list_free_full(list, free);
+    g_list_free_full(list, free);
     *length = size;
 
     return elements;
@@ -225,14 +225,14 @@ static ProcNetTcp *extract_entries(char **elements, unsigned int size)
 
 #define MAX_LINE_SIZE   (1024)
 
-WList *proc_net_tcp_open()
+GList *proc_net_tcp_open()
 {
     proc_net_tcp_open_real();
 
     char linebuf[MAX_LINE_SIZE];
     int n;
 
-    WList *list = w_list_new(); /* NULL */
+    GList *list = NULL;         /* NULL */
 
     unsigned int size;
     char **elements = NULL;
@@ -249,7 +249,7 @@ WList *proc_net_tcp_open()
         elements = proc_net_parse_line(linebuf, &size);
         if (elements) {
             ProcNetTcp *tcp = extract_entries(elements, size);
-            list = w_list_append(list, tcp);
+            list = g_list_append(list, tcp);
             proc_net_parse_line_free(elements, size);
         }
     }
@@ -258,7 +258,7 @@ WList *proc_net_tcp_open()
     return list;
 }
 
-void proc_net_tcp_close(WList * list)
+void proc_net_tcp_close(GList * list)
 {
-    w_list_free_full(list, proc_net_tcp_free);
+    g_list_free_full(list, proc_net_tcp_free);
 }

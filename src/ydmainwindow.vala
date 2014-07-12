@@ -5,11 +5,37 @@ namespace Yd{
 
 	public class MainWindow:Window{
 
-		private string tcp_tab_label="  TCP  ";
-		private string udp_tab_label="  UDP  ";
+		private const string TCP_TAB_TITLE="  TCP  ";
+		private const string UDP_TAB_TITLE="  UDP  ";
+
+		private const string TCP_TAB_NAME="tcp";
+		private const string UDP_TAB_NAME="udp";
+
+		private const string TCP_HDR_NO=" No. ";
+		private const string TCP_HDR_LOCAL=" local address ";
+		private const string TCP_HDR_REMOTE=" remote address ";
+		private const string TCP_HDR_STATE=" state ";
+		private const string TCP_HDR_TRQUEUE=" transmit queue ";
+		private const string TCP_HDR_REQUEUE=" receive queue ";
+		private const string TCP_HDR_UID=" uid ";
+
+		private enum TcpColumns{
+			TCP_COL_NO=0,
+			TCP_COL_LOCALADDR,
+			TCP_COL_REMOTEADDR,
+			TCP_COL_STATE,
+			TCP_COL_TRQUEUE,
+			TCP_COL_REQUEUE,
+			TCP_COL_UID,
+		}
+
 		private Stack stack;
 		private TreeView tcpview;
 		private TreeView udpview;
+
+		public new void show(){
+			this.show_all();
+		}
 
 		public MainWindow(){
 			this.title="Network Detection";
@@ -58,24 +84,32 @@ namespace Yd{
 			stack.set_transition_type(StackTransitionType.SLIDE_LEFT_RIGHT);
 			vbox.pack_start(stack,true,true,0);
 
-			ListStore store=new ListStore(6,typeof(string),typeof(string),
+			ListStore store=new ListStore(7,typeof(string),typeof(string),
 						typeof(string),typeof(string),typeof(string),
-						typeof(string));
+						typeof(string),typeof(string));
 			this.tcpview=new TreeView.with_model(store);
 			CellRendererText cell=new CellRendererText();
-			tcpview.insert_column_with_attributes(-1," No. ",cell,"text",0);
-			tcpview.insert_column_with_attributes(-1," local address ",
-						cell,"text",0);
-			tcpview.insert_column_with_attributes(-1," remote address ",
-						cell,"text",0);
-			tcpview.insert_column_with_attributes(-1," state ",
-						cell,"text",0);
-			tcpview.insert_column_with_attributes(-1," transmit-queue ",
-						cell,"text",0);
-			tcpview.insert_column_with_attributes(-1," receive-queue ",
-						cell,"text",0);
-			tcpview.insert_column_with_attributes(-1," uid ",
-						cell,"text",0);
+			tcpview.insert_column_with_attributes(-1,
+						TCP_HDR_NO,
+						cell,"text",TcpColumns.TCP_COL_NO);
+			tcpview.insert_column_with_attributes(-1,
+						TCP_HDR_LOCAL,
+						cell,"text",TcpColumns.TCP_COL_LOCALADDR);
+			tcpview.insert_column_with_attributes(-1,
+						TCP_HDR_REMOTE,
+						cell,"text",TcpColumns.TCP_COL_REMOTEADDR);
+			tcpview.insert_column_with_attributes(-1,
+						TCP_HDR_STATE,
+						cell,"text",TcpColumns.TCP_COL_STATE);
+			tcpview.insert_column_with_attributes(-1,
+						TCP_HDR_TRQUEUE,
+						cell,"text",TcpColumns.TCP_COL_TRQUEUE);
+			tcpview.insert_column_with_attributes(-1,
+						TCP_HDR_REQUEUE,
+						cell,"text",TcpColumns.TCP_COL_REQUEUE);
+			tcpview.insert_column_with_attributes(-1,
+						TCP_HDR_UID,
+						cell,"text",TcpColumns.TCP_COL_UID);
 
 			store=new ListStore(6,typeof(string),typeof(string),
 						typeof(string),typeof(string),typeof(string),
@@ -83,23 +117,33 @@ namespace Yd{
 			this.udpview=new TreeView.with_model(store);
 			cell=new CellRendererText();
 			udpview.insert_column_with_attributes(-1," No. ",cell,"text",0);
-		    udpview.insert_column_with_attributes(-1," local address ",
+			udpview.insert_column_with_attributes(-1," local address ",
 						cell,"text",0);
-		    udpview.insert_column_with_attributes(-1," remote address ",
+			udpview.insert_column_with_attributes(-1," remote address ",
 						cell,"text",0);
-		    udpview.insert_column_with_attributes(-1," state ",
+			udpview.insert_column_with_attributes(-1," state ",
 						cell,"text",0);
 
-			stack.add_titled(tcpview,"tcp",this.tcp_tab_label);
-			stack.add_titled(udpview,"udp",this.udp_tab_label);
+			stack.add_titled(tcpview,TCP_TAB_NAME,this.TCP_TAB_TITLE);
+			stack.add_titled(udpview,UDP_TAB_NAME,this.UDP_TAB_TITLE);
 
 			stack.add_titled(new Label("TODO"),"todo","TODO");
 		}
 
 		private void stack_name_changed(){
 			string name=stack.get_visible_child_name();
-			if(name!=null){
-				GLib.print("%s\n",name);
+			if(name==TCP_TAB_NAME){
+				ListStore store=(ListStore)tcpview.get_model();
+				TreeIter iter;
+				store.append(out iter);
+				store.set(iter,
+							TcpColumns.TCP_COL_NO,"NO",
+							TcpColumns.TCP_COL_LOCALADDR,"local address",
+							TcpColumns.TCP_COL_REMOTEADDR,"remote address",
+							TcpColumns.TCP_COL_STATE,"state",
+							TcpColumns.TCP_COL_TRQUEUE,"transmit queue",
+							TcpColumns.TCP_COL_REQUEUE,"receive queue",
+							TcpColumns.TCP_COL_UID,"uid");
 			}
 		}
 

@@ -24,7 +24,7 @@
  * 主要是/proc/net/tcp和/proc/net/udp
  */
 
-#include "wlist.h"
+#include <glib.h>
 
 
 #define TCPSTAT_FILE "/proc/net/tcp"
@@ -48,9 +48,9 @@ typedef struct {
  * 读取/proc/net/tcp，并解析得到一个当前打开的TCP端口列表
  * 列表的元素为ProcNetTcp
  */
-WList *proc_net_tcp_open();
+GList *proc_net_tcp_open();
 
-void proc_net_tcp_close(WList * list);
+void proc_net_tcp_close(GList * list);
 
 
 
