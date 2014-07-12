@@ -12,20 +12,20 @@ namespace Yd{
 		private const string UDP_TAB_NAME="udp";
 
 		private const string TCP_HDR_NO=" No. ";
-		private const string TCP_HDR_LOCAL=" local address ";
-		private const string TCP_HDR_REMOTE=" remote address ";
-		private const string TCP_HDR_STATE=" state ";
-		private const string TCP_HDR_TRQUEUE=" transmit queue ";
-		private const string TCP_HDR_REQUEUE=" receive queue ";
-		private const string TCP_HDR_UID=" uid ";
+		private const string TCP_HDR_LOCAL=" Local Address ";
+		private const string TCP_HDR_REMOTE=" Foreign Address ";
+		private const string TCP_HDR_STATE=" State ";
+		private const string TCP_HDR_TRQUEUE=" Send-Q ";
+		private const string TCP_HDR_REQUEUE=" Recv-Q ";
+		private const string TCP_HDR_UID=" Uid ";
 
 		private enum TcpColumns{
 			TCP_COL_NO=0,
 			TCP_COL_LOCALADDR,
 			TCP_COL_REMOTEADDR,
-			TCP_COL_STATE,
 			TCP_COL_TRQUEUE,
 			TCP_COL_REQUEUE,
+			TCP_COL_STATE,
 			TCP_COL_UID,
 		}
 
@@ -84,9 +84,10 @@ namespace Yd{
 			stack.set_transition_type(StackTransitionType.SLIDE_LEFT_RIGHT);
 			vbox.pack_start(stack,true,true,0);
 
-			ListStore store=new ListStore(7,typeof(string),typeof(string),
+			ListStore store=new ListStore(9,typeof(string),typeof(string),
 						typeof(string),typeof(string),typeof(string),
-						typeof(string),typeof(string));
+						typeof(string),typeof(string),
+						typeof(Pango.Alignment),typeof(bool));
 			this.tcpview=new TreeView.with_model(store);
 			CellRendererText cell=new CellRendererText();
 			tcpview.insert_column_with_attributes(-1,
@@ -99,8 +100,8 @@ namespace Yd{
 						TCP_HDR_REMOTE,
 						cell,"text",TcpColumns.TCP_COL_REMOTEADDR);
 			tcpview.insert_column_with_attributes(-1,
-						TCP_HDR_STATE,
-						cell,"text",TcpColumns.TCP_COL_STATE);
+						TCP_HDR_STATE,cell,
+						"text",TcpColumns.TCP_COL_STATE);
 			tcpview.insert_column_with_attributes(-1,
 						TCP_HDR_TRQUEUE,
 						cell,"text",TcpColumns.TCP_COL_TRQUEUE);

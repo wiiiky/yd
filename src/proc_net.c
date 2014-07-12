@@ -38,9 +38,10 @@ static int proc_net_tcp_open_real()
     return tcpfd;
 }
 
-static ProcNetTcp *proc_net_tcp_alloc()
+static ProcNetTcpEntry *proc_net_tcp_alloc()
 {
-    ProcNetTcp *tcp = (ProcNetTcp *) malloc(sizeof(ProcNetTcp));
+    ProcNetTcpEntry *tcp =
+        (ProcNetTcpEntry *) malloc(sizeof(ProcNetTcpEntry));
     tcp->sl = NULL;
     tcp->local_address = NULL;
     tcp->rem_address = NULL;
@@ -57,7 +58,7 @@ static ProcNetTcp *proc_net_tcp_alloc()
 
 static void proc_net_tcp_free(void *data)
 {
-    ProcNetTcp *tcp = (ProcNetTcp *) data;
+    ProcNetTcpEntry *tcp = (ProcNetTcpEntry *) data;
     free(tcp->sl);
     free(tcp->local_address);
     free(tcp->rem_address);
@@ -153,6 +154,18 @@ static int _uid = -1;
 static int _timeout = -1;
 static int _inode = -1;
 
+static int get_real_title_index(int i)
+{
+    int diff = 0;
+    if (_tx_rx_queue >= 0) {
+        diff++;
+    }
+    if (_tr_tm_when >= 0) {
+        diff++;
+    }
+    return i - diff;
+}
+
 static void get_title_index(char **elements, unsigned int size)
 {
     static int first = 1;
@@ -163,33 +176,33 @@ static void get_title_index(char **elements, unsigned int size)
         int i;
         for (i = 0; i < size; i++) {
             if (strcmp(elements[i], "sl") == 0) {
-                _sl = i;
+                _sl = get_real_title_index(i);
             } else if (strcmp(elements[i], "local_address") == 0) {
-                _local_address = i;
+                _local_address = get_real_title_index(i);
             } else if (strcmp(elements[i], "rem_address") == 0) {
-                _rem_address = i;
+                _rem_address = get_real_title_index(i);
             } else if (strcmp(elements[i], "st") == 0) {
-                _st = i;
+                _st = get_real_title_index(i);
             } else if (strcmp(elements[i], "tx_queue") == 0) {
-                _tx_rx_queue = i;
+                _tx_rx_queue = get_real_title_index(i);
             } else if (strcmp(elements[i], "tr") == 0) {
-                _tr_tm_when = i;
+                _tr_tm_when = get_real_title_index(i);
             } else if (strcmp(elements[i], "retrnsmt") == 0) {
-                _retrnsmt = i;
+                _retrnsmt = get_real_title_index(i);
             } else if (strcmp(elements[i], "uid") == 0) {
-                _uid = i;
+                _uid = get_real_title_index(i);
             } else if (strcmp(elements[i], "timeout") == 0) {
-                _timeout = i;
+                _timeout = get_real_title_index(i);
             } else if (strcmp(elements[i], "inode") == 0) {
-                _inode = i;
+                _inode = get_real_title_index(i);
             }
         }
     }
 }
 
-static ProcNetTcp *extract_entries(char **elements, unsigned int size)
+static ProcNetTcpEntry *extract_entries(char **elements, unsigned int size)
 {
-    ProcNetTcp *tcp = proc_net_tcp_alloc();
+    ProcNetTcpEntry *tcp = proc_net_tcp_alloc();
     if (_sl >= 0 && _sl < size) {
         tcp->sl = strdup(elements[_sl]);
     }
@@ -248,7 +261,7 @@ GList *proc_net_tcp_open()
     while ((n = w_readline(tcpfd, linebuf, MAX_LINE_SIZE)) > 0) {
         elements = proc_net_parse_line(linebuf, &size);
         if (elements) {
-            ProcNetTcp *tcp = extract_entries(elements, size);
+            ProcNetTcpEntry *tcp = extract_entries(elements, size);
             list = g_list_append(list, tcp);
             proc_net_parse_line_free(elements, size);
         }
@@ -261,4 +274,13 @@ GList *proc_net_tcp_open()
 void proc_net_tcp_close(GList * list)
 {
     g_list_free_full(list, proc_net_tcp_free);
+}
+
+
+int proc_net_tcp_entry_number(ProcNetTcpEntry * tcp)
+{
+    if (tcp->sl) {
+        return atoi(tcp->sl);
+    }
+    return -1;
 }

@@ -42,7 +42,7 @@ typedef struct {
     char *timeout;              /* timeout */
     char *inode;                /* inode */
     /* TODO */
-} ProcNetTcp;
+} ProcNetTcpEntry;
 
 /*
  * 读取/proc/net/tcp，并解析得到一个当前打开的TCP端口列表
@@ -51,6 +51,8 @@ typedef struct {
 GList *proc_net_tcp_open();
 
 void proc_net_tcp_close(GList * list);
+
+int proc_net_tcp_entry_number(ProcNetTcpEntry * tcp);
 
 
 
