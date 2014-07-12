@@ -21,7 +21,7 @@
 
 #include "sudo.h"
 #include "proc_net.h"
-#include <gtk/gtk.h>
+#include "ydmainwindow.h"
 #include <pcap.h>
 #include <fcntl.h>
 

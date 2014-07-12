@@ -1,4 +1,5 @@
 using Gtk;
+using GLib;
 
 namespace Yd{
 
@@ -6,6 +7,9 @@ namespace Yd{
 
 		private string tcp_tab_label="  TCP  ";
 		private string udp_tab_label="  UDP  ";
+		private Stack stack;
+		private TreeView tcpview;
+		private TreeView udpview;
 
 		public MainWindow(){
 			this.title="Network Detection";
@@ -46,16 +50,57 @@ namespace Yd{
 			StackSwitcher switcher=new StackSwitcher();
 			vbox.pack_start(switcher,false,false,0);
 
-			Stack stack=new Stack();
+			this.stack=new Stack();
+			GLib.Signal.connect_swapped(stack,"notify::visible-child-name",
+						(GLib.Callback)stack_name_changed,this);
 			switcher.set_stack(stack);
 			stack.set_transition_duration(1000);
 			stack.set_transition_type(StackTransitionType.SLIDE_LEFT_RIGHT);
 			vbox.pack_start(stack,true,true,0);
 
-			stack.add_titled(new Label("TCP..."),"label1",
-						this.tcp_tab_label);
-			stack.add_titled(new Label("UDP..."),"label2",
-						this.udp_tab_label);
+			ListStore store=new ListStore(6,typeof(string),typeof(string),
+						typeof(string),typeof(string),typeof(string),
+						typeof(string));
+			this.tcpview=new TreeView.with_model(store);
+			CellRendererText cell=new CellRendererText();
+			tcpview.insert_column_with_attributes(-1," No. ",cell,"text",0);
+			tcpview.insert_column_with_attributes(-1," local address ",
+						cell,"text",0);
+			tcpview.insert_column_with_attributes(-1," remote address ",
+						cell,"text",0);
+			tcpview.insert_column_with_attributes(-1," state ",
+						cell,"text",0);
+			tcpview.insert_column_with_attributes(-1," transmit-queue ",
+						cell,"text",0);
+			tcpview.insert_column_with_attributes(-1," receive-queue ",
+						cell,"text",0);
+			tcpview.insert_column_with_attributes(-1," uid ",
+						cell,"text",0);
+
+			store=new ListStore(6,typeof(string),typeof(string),
+						typeof(string),typeof(string),typeof(string),
+						typeof(string));
+			this.udpview=new TreeView.with_model(store);
+			cell=new CellRendererText();
+			udpview.insert_column_with_attributes(-1," No. ",cell,"text",0);
+		    udpview.insert_column_with_attributes(-1," local address ",
+						cell,"text",0);
+		    udpview.insert_column_with_attributes(-1," remote address ",
+						cell,"text",0);
+		    udpview.insert_column_with_attributes(-1," state ",
+						cell,"text",0);
+
+			stack.add_titled(tcpview,"tcp",this.tcp_tab_label);
+			stack.add_titled(udpview,"udp",this.udp_tab_label);
+
+			stack.add_titled(new Label("TODO"),"todo","TODO");
+		}
+
+		private void stack_name_changed(){
+			string name=stack.get_visible_child_name();
+			if(name!=null){
+				GLib.print("%s\n",name);
+			}
 		}
 
 		private void about_item_activate(){
