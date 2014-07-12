@@ -192,9 +192,7 @@ YdMainWindow *yd_main_window_construct(GType object_type)
     GtkTreeView *_tmp45_ = NULL;
     GtkCellRendererText *_tmp46_ = NULL;
     GtkStack *_tmp47_ = NULL;
-    GtkTreeView *_tmp48_ = NULL;
     GtkStack *_tmp49_ = NULL;
-    GtkTreeView *_tmp50_ = NULL;
     GtkStack *_tmp51_ = NULL;
     GtkLabel *_tmp52_ = NULL;
     GtkLabel *_tmp53_ = NULL;
@@ -366,14 +364,16 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 (GtkCellRenderer *)
                                                 _tmp46_, "text", 0, NULL);
     _tmp47_ = self->priv->stack;
-    _tmp48_ = self->priv->tcpview;
-    gtk_stack_add_titled(_tmp47_, (GtkWidget *) _tmp48_,
-                         YD_MAIN_WINDOW_TCP_TAB_NAME,
+    GtkWidget *scrollview = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(scrollview),
+                      GTK_WIDGET(self->priv->tcpview));
+    gtk_stack_add_titled(_tmp47_, scrollview, YD_MAIN_WINDOW_TCP_TAB_NAME,
                          YD_MAIN_WINDOW_TCP_TAB_TITLE);
     _tmp49_ = self->priv->stack;
-    _tmp50_ = self->priv->udpview;
-    gtk_stack_add_titled(_tmp49_, (GtkWidget *) _tmp50_,
-                         YD_MAIN_WINDOW_UDP_TAB_NAME,
+    scrollview = gtk_scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(scrollview),
+                      GTK_WIDGET(self->priv->udpview));
+    gtk_stack_add_titled(_tmp49_, scrollview, YD_MAIN_WINDOW_UDP_TAB_NAME,
                          YD_MAIN_WINDOW_UDP_TAB_TITLE);
     _tmp51_ = self->priv->stack;
     _tmp52_ = (GtkLabel *) gtk_label_new("TODO");
