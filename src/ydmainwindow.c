@@ -13,6 +13,7 @@
 #include <gdk/gdk.h>
 #include <pango/pango.h>
 #include <arpa/inet.h>
+#include <pwd.h>
 
 #define YD_MAIN_WINDOW_UPDATE_TIMEOUT   (1200)
 
@@ -32,11 +33,11 @@ struct _YdMainWindowPrivate {
 };
 
 typedef enum {
-    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO = 0,
-    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
-    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
-    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
-    YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID
+    YD_MAIN_WINDOW_TCP_COLUMNS_INFO = 0,
+    YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR,
+    YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR,
+    YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
+    YD_MAIN_WINDOW_TCP_COLUMNS_UID
 } YdMainWindowTcpColumns;
 
 struct _Block1Data {
@@ -57,9 +58,11 @@ static GType yd_main_window_tcp_columns_get_type(void) G_GNUC_UNUSED;
 
 #define YD_MAIN_WINDOW_TCP_TAB_TITLE "  TCP  "
 #define YD_MAIN_WINDOW_UDP_TAB_TITLE "  UDP  "
+
 #define YD_MAIN_WINDOW_TCP_TAB_NAME "tcp"
 #define YD_MAIN_WINDOW_UDP_TAB_NAME "udp"
-#define YD_MAIN_WINDOW_TCP_HDR_NO " No. "
+
+#define YD_MAIN_WINDOW_TCP_HDR_NO " INFO "
 #define YD_MAIN_WINDOW_TCP_HDR_LOCAL " Local Address "
 #define YD_MAIN_WINDOW_TCP_HDR_REMOTE " Foreign Address "
 #define YD_MAIN_WINDOW_TCP_HDR_STATE " State "
@@ -94,21 +97,21 @@ static GType yd_main_window_tcp_columns_get_type(void)
     static volatile gsize yd_main_window_tcp_columns_type_id__volatile = 0;
     if (g_once_init_enter(&yd_main_window_tcp_columns_type_id__volatile)) {
         static const GEnumValue values[] =
-            { {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO,
-               "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO", "tcp-col-no"},
-        {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
-         "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR",
+            { {YD_MAIN_WINDOW_TCP_COLUMNS_INFO,
+               "YD_MAIN_WINDOW_TCP_COLUMNS_INFO", "tcp-col-no"},
+        {YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR,
+         "YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR",
          "tcp-col-localaddr"},
-        {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
-         "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR",
+        {YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR,
+         "YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR",
          "tcp-col-remoteaddr"},
-        {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
-         "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE",
+        {YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
+         "YD_MAIN_WINDOW_TCP_COLUMNS_STATE",
          "tcp-col-state"},
-        {YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID,
-         "YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID", "tcp-col-uid"}, {0,
-                                                                    NULL,
-                                                                    NULL}
+        {YD_MAIN_WINDOW_TCP_COLUMNS_UID,
+         "YD_MAIN_WINDOW_TCP_COLUMNS_UID", "tcp-col-uid"}, {0,
+                                                            NULL,
+                                                            NULL}
         };
         GType yd_main_window_tcp_columns_type_id;
         yd_main_window_tcp_columns_type_id =
@@ -303,7 +306,7 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 YD_MAIN_WINDOW_TCP_HDR_NO,
                                                 (GtkCellRenderer *)
                                                 _tmp22_, "text",
-                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO,
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_INFO,
                                                 NULL);
     _tmp23_ = self->priv->tcpview;
     _tmp24_ = cell;
@@ -311,7 +314,7 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 YD_MAIN_WINDOW_TCP_HDR_LOCAL,
                                                 (GtkCellRenderer *)
                                                 _tmp24_, "text",
-                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR,
                                                 NULL);
     _tmp25_ = self->priv->tcpview;
     _tmp26_ = cell;
@@ -319,7 +322,7 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 YD_MAIN_WINDOW_TCP_HDR_REMOTE,
                                                 (GtkCellRenderer *)
                                                 _tmp26_, "text",
-                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR,
                                                 NULL);
     _tmp27_ = self->priv->tcpview;
     _tmp28_ = cell;
@@ -327,7 +330,7 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 YD_MAIN_WINDOW_TCP_HDR_STATE,
                                                 (GtkCellRenderer *)
                                                 _tmp28_, "text",
-                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
                                                 NULL);
     _tmp33_ = self->priv->tcpview;
     _tmp34_ = cell;
@@ -335,7 +338,7 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 YD_MAIN_WINDOW_TCP_HDR_UID,
                                                 (GtkCellRenderer *)
                                                 _tmp34_, "text",
-                                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID,
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_UID,
                                                 NULL);
     _tmp35_ =
         gtk_list_store_new(6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
@@ -450,13 +453,6 @@ static const gchar *make_tcp_remote_address_with_port(ProcNetTcpEntry *
     return make_address_with_port(buf, 32, addr, port);
 }
 
-static const gchar *make_tcp_entry_number(ProcNetTcpEntry * tcp)
-{
-    static gchar buf[8];
-    snprintf(buf, 8, "%d", atoi(tcp->sl));
-    return buf;
-}
-
 static const gchar *make_tcp_state(ProcNetTcpEntry * tcp)
 {
     static gchar buf[32];
@@ -490,12 +486,26 @@ static const gchar *make_tcp_state(ProcNetTcpEntry * tcp)
             snprintf(buf, 32, "ESTABLISHED");
             break;
         default:
+            g_debug("%u\n", state);
             snprintf(buf, 32, "UNKNOWN");
             break;
         }
     }
 
 
+    return buf;
+}
+
+
+static const gchar *make_tcp_uid(ProcNetTcpEntry * tcp)
+{
+    static gchar buf[32];
+    int uid = atoi(tcp->uid);
+    struct passwd *pwd = getpwuid(uid);
+    if (pwd == NULL) {
+        return tcp->uid;
+    }
+    snprintf(buf, 32, "%s\t(%s)", tcp->uid, pwd->pw_name);
     return buf;
 }
 
@@ -513,16 +523,16 @@ static void yd_main_window_update_tcp(YdMainWindow * self)
         ProcNetTcpEntry *tcp = (ProcNetTcpEntry *) ptr->data;
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter,
-                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO,
-                           make_tcp_entry_number(tcp),
-                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
+                           YD_MAIN_WINDOW_TCP_COLUMNS_INFO,
+                           "",
+                           YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR,
                            make_tcp_local_address_with_port(tcp),
-                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
+                           YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR,
                            make_tcp_remote_address_with_port(tcp),
-                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
+                           YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
                            make_tcp_state(tcp),
-                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID,
-                           tcp->uid, -1);
+                           YD_MAIN_WINDOW_TCP_COLUMNS_UID,
+                           make_tcp_uid(tcp), -1);
         ptr = g_list_next(ptr);
     }
     proc_net_tcp_close(tcps);
