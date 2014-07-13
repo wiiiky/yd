@@ -14,6 +14,8 @@
 #include <pango/pango.h>
 #include <arpa/inet.h>
 
+#define YD_MAIN_WINDOW_UPDATE_TIMEOUT   (1200)
+
 
 #define YD_MAIN_WINDOW_TYPE_TCP_COLUMNS (yd_main_window_tcp_columns_get_type ())
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
@@ -24,6 +26,9 @@ struct _YdMainWindowPrivate {
     GtkStack *stack;
     GtkTreeView *tcpview;
     GtkTreeView *udpview;
+
+    guint tcp_to;
+    guint udp_to;
 };
 
 typedef enum {
@@ -48,6 +53,8 @@ enum {
     YD_MAIN_WINDOW_DUMMY_PROPERTY
 };
 static GType yd_main_window_tcp_columns_get_type(void) G_GNUC_UNUSED;
+
+
 #define YD_MAIN_WINDOW_TCP_TAB_TITLE "  TCP  "
 #define YD_MAIN_WINDOW_UDP_TAB_TITLE "  UDP  "
 #define YD_MAIN_WINDOW_TCP_TAB_NAME "tcp"
@@ -59,6 +66,8 @@ static GType yd_main_window_tcp_columns_get_type(void) G_GNUC_UNUSED;
 #define YD_MAIN_WINDOW_TCP_HDR_TRQUEUE " Send-Q "
 #define YD_MAIN_WINDOW_TCP_HDR_REQUEUE " Recv-Q "
 #define YD_MAIN_WINDOW_TCP_HDR_UID " Uid "
+
+
 static void _gtk_main_quit_gtk_widget_destroy(GtkWidget * _sender,
                                               gpointer self);
 static void yd_main_window_about_item_activate(YdMainWindow * self);
@@ -396,6 +405,10 @@ YdMainWindow *yd_main_window_construct(GType object_type)
     _g_object_unref0(menubar);
     _g_object_unref0(mainbox);
     _g_object_unref0(accel_group);
+
+    self->priv->tcp_to = 0;
+    self->priv->udp_to = 0;
+
     return self;
 }
 
@@ -414,7 +427,7 @@ static const gchar *make_address_with_port(char *buf, uint32_t size,
 }
 
 /* 返回静态缓冲区的内容 */
-static const gchar *make_local_address_with_port(ProcNetTcpEntry * tcp)
+static const gchar *make_tcp_local_address_with_port(ProcNetTcpEntry * tcp)
 {
     uint32_t addr;
     uint16_t port;
@@ -425,7 +438,8 @@ static const gchar *make_local_address_with_port(ProcNetTcpEntry * tcp)
     return make_address_with_port(buf, 32, addr, port);
 }
 
-static const gchar *make_remote_address_with_port(ProcNetTcpEntry * tcp)
+static const gchar *make_tcp_remote_address_with_port(ProcNetTcpEntry *
+                                                      tcp)
 {
     uint32_t addr;
     uint16_t port;
@@ -436,14 +450,14 @@ static const gchar *make_remote_address_with_port(ProcNetTcpEntry * tcp)
     return make_address_with_port(buf, 32, addr, port);
 }
 
-static const gchar *make_entry_number(ProcNetTcpEntry * tcp)
+static const gchar *make_tcp_entry_number(ProcNetTcpEntry * tcp)
 {
     static gchar buf[8];
     snprintf(buf, 8, "%d", atoi(tcp->sl));
     return buf;
 }
 
-static const gchar *make_state(ProcNetTcpEntry * tcp)
+static const gchar *make_tcp_state(ProcNetTcpEntry * tcp)
 {
     static gchar buf[32];
     if (tcp->st == NULL) {
@@ -451,11 +465,11 @@ static const gchar *make_state(ProcNetTcpEntry * tcp)
     } else {
         uint32_t state = strtol(tcp->st, NULL, 16);
         switch (state) {
+            /*
+             * 状态码应该是连续的，TODO
+             */
         case 0x0a:
             snprintf(buf, 32, "LISTEN");
-            break;
-        case 0x04:
-            snprintf(buf, 32, "FIN_WAIT1");
             break;
         case 0x09:
             snprintf(buf, 32, "LAST_ACK");
@@ -465,6 +479,9 @@ static const gchar *make_state(ProcNetTcpEntry * tcp)
             break;
         case 0x06:
             snprintf(buf, 32, "TIME_WAIT");
+            break;
+        case 0x04:
+            snprintf(buf, 32, "FIN_WAIT1");
             break;
         case 0x02:
             snprintf(buf, 32, "SYN_SENT");
@@ -482,6 +499,80 @@ static const gchar *make_state(ProcNetTcpEntry * tcp)
     return buf;
 }
 
+static void yd_main_window_update_tcp(YdMainWindow * self)
+{
+    GtkListStore *store =
+        (GtkListStore *) gtk_tree_view_get_model(self->priv->tcpview);
+    gtk_list_store_clear(store);
+
+    GtkTreeIter iter;
+
+    GList *tcps = proc_net_tcp_open();
+    GList *ptr = tcps;
+    while (ptr) {
+        ProcNetTcpEntry *tcp = (ProcNetTcpEntry *) ptr->data;
+        gtk_list_store_append(store, &iter);
+        gtk_list_store_set(store, &iter,
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO,
+                           make_tcp_entry_number(tcp),
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
+                           make_tcp_local_address_with_port(tcp),
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
+                           make_tcp_remote_address_with_port(tcp),
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
+                           make_tcp_state(tcp),
+                           YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID,
+                           tcp->uid, -1);
+        ptr = g_list_next(ptr);
+    }
+    proc_net_tcp_close(tcps);
+}
+
+static gboolean yd_main_window_update_tcp_timeout(gpointer data)
+{
+    YdMainWindow *self = (YdMainWindow *) data;
+    yd_main_window_update_tcp(self);
+    return TRUE;
+}
+
+static void yd_main_window_remove_timeout(YdMainWindow * self)
+{
+    if (self->priv->tcp_to) {
+        g_source_remove(self->priv->tcp_to);
+    }
+    if (self->priv->udp_to) {
+        g_source_remove(self->priv->udp_to);
+    }
+    self->priv->tcp_to = 0;
+    self->priv->udp_to = 0;
+}
+
+static void yd_main_window_switch_to_tcp(YdMainWindow * self)
+{
+    yd_main_window_remove_timeout(self);
+    self->priv->tcp_to = g_timeout_add(YD_MAIN_WINDOW_UPDATE_TIMEOUT,
+                                       yd_main_window_update_tcp_timeout,
+                                       self);
+}
+
+static gboolean yd_main_window_update_udp_timeout(gpointer data)
+{
+    return TRUE;
+}
+
+static void yd_main_window_switch_to_udp(YdMainWindow * self)
+{
+    yd_main_window_remove_timeout(self);
+    self->priv->udp_to = g_timeout_add(YD_MAIN_WINDOW_UPDATE_TIMEOUT,
+                                       yd_main_window_update_udp_timeout,
+                                       self);
+}
+
+static void yd_main_window_switch_to_todo(YdMainWindow * self)
+{
+    yd_main_window_remove_timeout(self);
+}
+
 
 static void yd_main_window_stack_name_changed(YdMainWindow * self)
 {
@@ -489,32 +580,11 @@ static void yd_main_window_stack_name_changed(YdMainWindow * self)
     const gchar *name = gtk_stack_get_visible_child_name(stack);
 
     if (g_strcmp0(name, YD_MAIN_WINDOW_TCP_TAB_NAME) == 0) {
-        GtkListStore *store =
-            (GtkListStore *) gtk_tree_view_get_model(self->priv->tcpview);
-        gtk_list_store_clear(store);
-
-        GtkTreeIter iter;
-
-        GList *tcps = proc_net_tcp_open();
-        GList *ptr = tcps;
-        while (ptr) {
-            ProcNetTcpEntry *tcp = (ProcNetTcpEntry *) ptr->data;
-            gtk_list_store_append(store, &iter);
-            gtk_list_store_set(store, &iter,
-                               YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO,
-                               make_entry_number(tcp),
-                               YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
-                               make_local_address_with_port(tcp),
-                               YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
-                               make_remote_address_with_port(tcp),
-                               YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
-                               make_state(tcp),
-                               YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID,
-                               tcp->uid, -1);
-            ptr = g_list_next(ptr);
-        }
-        proc_net_tcp_close(tcps);
+        yd_main_window_switch_to_tcp(self);
     } else if (g_strcmp0(name, YD_MAIN_WINDOW_UDP_TAB_NAME) == 0) {
+        yd_main_window_switch_to_udp(self);
+    } else {
+        yd_main_window_switch_to_todo(self);
     }
 }
 
