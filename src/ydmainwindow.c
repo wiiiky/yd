@@ -9,8 +9,10 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string.h>
 #include <gdk/gdk.h>
 #include <pango/pango.h>
+#include <arpa/inet.h>
 
 
 #define YD_MAIN_WINDOW_TYPE_TCP_COLUMNS (yd_main_window_tcp_columns_get_type ())
@@ -403,10 +405,81 @@ YdMainWindow *yd_main_window_new(void)
     return yd_main_window_construct(YD_TYPE_MAIN_WINDOW);
 }
 
-
-static gpointer _g_object_ref0(gpointer self)
+static const gchar *make_address_with_port(char *buf, uint32_t size,
+                                           uint32_t addr, uint16_t port)
 {
-    return self ? g_object_ref(self) : NULL;
+    struct in_addr addr_in = { addr };
+    snprintf(buf, size, "%s:%u", inet_ntoa(addr_in), port);
+    return buf;
+}
+
+/* 返回静态缓冲区的内容 */
+static const gchar *make_local_address_with_port(ProcNetTcpEntry * tcp)
+{
+    uint32_t addr;
+    uint16_t port;
+    static gchar buf[32];
+    if (porc_net_tcp_entry_local(tcp, &addr, &port)) {
+        return NULL;
+    }
+    return make_address_with_port(buf, 32, addr, port);
+}
+
+static const gchar *make_remote_address_with_port(ProcNetTcpEntry * tcp)
+{
+    uint32_t addr;
+    uint16_t port;
+    static gchar buf[32];
+    if (proc_net_tcp_entry_remote(tcp, &addr, &port)) {
+        return NULL;
+    }
+    return make_address_with_port(buf, 32, addr, port);
+}
+
+static const gchar *make_entry_number(ProcNetTcpEntry * tcp)
+{
+    static gchar buf[8];
+    snprintf(buf, 8, "%d", atoi(tcp->sl));
+    return buf;
+}
+
+static const gchar *make_state(ProcNetTcpEntry * tcp)
+{
+    static gchar buf[32];
+    if (tcp->st == NULL) {
+        snprintf(buf, 32, "UNKNOWN");
+    } else {
+        uint32_t state = strtol(tcp->st, NULL, 16);
+        switch (state) {
+        case 0x0a:
+            snprintf(buf, 32, "LISTEN");
+            break;
+        case 0x04:
+            snprintf(buf, 32, "FIN_WAIT1");
+            break;
+        case 0x09:
+            snprintf(buf, 32, "LAST_ACK");
+            break;
+        case 0x08:
+            snprintf(buf, 32, "CLOSE_WAIT");
+            break;
+        case 0x06:
+            snprintf(buf, 32, "TIME_WAIT");
+            break;
+        case 0x02:
+            snprintf(buf, 32, "SYN_SENT");
+            break;
+        case 0x01:
+            snprintf(buf, 32, "ESTABLISHED");
+            break;
+        default:
+            snprintf(buf, 32, "UNKNOWN");
+            break;
+        }
+    }
+
+
+    return buf;
 }
 
 
@@ -429,13 +502,13 @@ static void yd_main_window_stack_name_changed(YdMainWindow * self)
             gtk_list_store_append(store, &iter);
             gtk_list_store_set(store, &iter,
                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_NO,
-                               tcp->sl,
+                               make_entry_number(tcp),
                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_LOCALADDR,
-                               tcp->local_address,
+                               make_local_address_with_port(tcp),
                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_REMOTEADDR,
-                               tcp->rem_address,
+                               make_remote_address_with_port(tcp),
                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_STATE,
-                               tcp->st,
+                               make_state(tcp),
                                YD_MAIN_WINDOW_TCP_COLUMNS_TCP_COL_UID,
                                tcp->uid, -1);
             ptr = g_list_next(ptr);

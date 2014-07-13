@@ -3,7 +3,7 @@ Maximized=1
 Geometry=1301x744+65+24
 
 [File Loader]
-Files=../../src/main.c#9%%%../../src/proc_net.c#197%%%../../src/proc_net.h#38%%%../../src/yd.h#22%%%../../src/ydmainwindow.h#26%%%../../src/ydmainwindow.c#366
+Files=../../src/main.c#9%%%../../src/proc_net.c#308%%%../../src/proc_net.h#60%%%../../src/yd.h#22%%%../../src/ydmainwindow.h#26%%%../../src/ydmainwindow.c#465
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n

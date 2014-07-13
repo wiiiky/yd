@@ -25,6 +25,7 @@
  */
 
 #include <glib.h>
+#include <inttypes.h>
 
 
 #define TCPSTAT_FILE "/proc/net/tcp"
@@ -54,6 +55,10 @@ void proc_net_tcp_close(GList * list);
 
 int proc_net_tcp_entry_number(ProcNetTcpEntry * tcp);
 
+int porc_net_tcp_entry_local(ProcNetTcpEntry * tcp, uint32_t * addr,
+                             uint16_t * port);
 
+int proc_net_tcp_entry_remote(ProcNetTcpEntry * tcp, uint32_t * addr,
+                              uint16_t * port);
 
 #endif

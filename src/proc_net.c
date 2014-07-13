@@ -284,3 +284,30 @@ int proc_net_tcp_entry_number(ProcNetTcpEntry * tcp)
     }
     return -1;
 }
+
+static int proc_net_tcp_entry_address(const char *address,
+                                      uint32_t * addr, uint16_t * port)
+{
+    if (address == NULL) {
+        return -1;
+    }
+    char *colon = strchr(address, ':');
+    if (colon == NULL) {        /* 没有: 则认为是无效的 */
+        return -1;
+    }
+    *addr = strtol(address, NULL, 16);
+    *port = strtol(colon + 1, NULL, 16);
+    return 0;
+}
+
+int porc_net_tcp_entry_local(ProcNetTcpEntry * tcp,
+                             uint32_t * addr, uint16_t * port)
+{
+    return proc_net_tcp_entry_address(tcp->local_address, addr, port);
+}
+
+int proc_net_tcp_entry_remote(ProcNetTcpEntry * tcp, uint32_t * addr,
+                              uint16_t * port)
+{
+    return proc_net_tcp_entry_address(tcp->rem_address, addr, port);
+}
