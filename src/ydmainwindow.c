@@ -531,6 +531,7 @@ static void yd_main_window_remove_timeout(YdMainWindow * self)
 static void yd_main_window_switch_to_tcp(YdMainWindow * self)
 {
     yd_main_window_remove_timeout(self);
+    yd_main_window_update_tcp_timeout(self);
     self->priv->tcp_to = g_timeout_add(YD_MAIN_WINDOW_UPDATE_TIMEOUT,
                                        yd_main_window_update_tcp_timeout,
                                        self);
