@@ -38,7 +38,7 @@ static int proc_net_tcp_open_real()
     return tcpfd;
 }
 
-static ProcNetTcpEntry *proc_net_tcp_alloc()
+static ProcNetTcpEntry *proc_net_tcp_entry_alloc()
 {
     ProcNetTcpEntry *tcp =
         (ProcNetTcpEntry *) malloc(sizeof(ProcNetTcpEntry));
@@ -56,7 +56,7 @@ static ProcNetTcpEntry *proc_net_tcp_alloc()
     return tcp;
 }
 
-static void proc_net_tcp_free(void *data)
+void proc_net_tcp_entry_free(void *data)
 {
     ProcNetTcpEntry *tcp = (ProcNetTcpEntry *) data;
     free(tcp->sl);
@@ -202,7 +202,7 @@ static void get_title_index(char **elements, unsigned int size)
 
 static ProcNetTcpEntry *extract_entries(char **elements, unsigned int size)
 {
-    ProcNetTcpEntry *tcp = proc_net_tcp_alloc();
+    ProcNetTcpEntry *tcp = proc_net_tcp_entry_alloc();
     if (_sl >= 0 && _sl < size) {
         tcp->sl = strdup(elements[_sl]);
     }
@@ -273,7 +273,7 @@ GList *proc_net_tcp_open()
 
 void proc_net_tcp_close(GList * list)
 {
-    g_list_free_full(list, proc_net_tcp_free);
+    g_list_free_full(list, proc_net_tcp_entry_free);
 }
 
 

@@ -37,7 +37,8 @@ typedef enum {
     YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR,
     YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR,
     YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
-    YD_MAIN_WINDOW_TCP_COLUMNS_UID
+    YD_MAIN_WINDOW_TCP_COLUMNS_UID,
+    YD_MAIN_WINDOW_TCP_COLUMNS_POINTER,
 } YdMainWindowTcpColumns;
 
 struct _Block1Data {
@@ -109,9 +110,12 @@ static GType yd_main_window_tcp_columns_get_type(void)
          "YD_MAIN_WINDOW_TCP_COLUMNS_STATE",
          "tcp-col-state"},
         {YD_MAIN_WINDOW_TCP_COLUMNS_UID,
-         "YD_MAIN_WINDOW_TCP_COLUMNS_UID", "tcp-col-uid"}, {0,
-                                                            NULL,
-                                                            NULL}
+         "YD_MAIN_WINDOW_TCP_COLUMNS_UID", "tcp-col-uid"},
+        {YD_MAIN_WINDOW_TCP_COLUMNS_POINTER,
+         "YD_MAIN_WINDOW_TCP_COLUMNS_POINTER", "tcp-col-pointer"},
+        {0,
+         NULL,
+         NULL}
         };
         GType yd_main_window_tcp_columns_type_id;
         yd_main_window_tcp_columns_type_id =
@@ -288,8 +292,8 @@ YdMainWindow *yd_main_window_construct(GType object_type)
     _tmp16_ = self->priv->stack;
     gtk_box_pack_start(vbox, (GtkWidget *) _tmp16_, TRUE, TRUE, (guint) 0);
     _tmp17_ =
-        gtk_list_store_new(5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-                           G_TYPE_STRING, G_TYPE_STRING);
+        gtk_list_store_new(6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+                           G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
     store = _tmp17_;
     _tmp18_ = store;
     _tmp19_ = (GtkTreeView *) gtk_tree_view_new_with_model((GtkTreeModel *)
@@ -511,31 +515,75 @@ static const gchar *make_tcp_uid(ProcNetTcpEntry * tcp)
 
 static void yd_main_window_update_tcp(YdMainWindow * self)
 {
-    GtkListStore *store =
-        (GtkListStore *) gtk_tree_view_get_model(self->priv->tcpview);
-    gtk_list_store_clear(store);
-
-    GtkTreeIter iter;
-
     GList *tcps = proc_net_tcp_open();
+
+    GtkTreeModel *model = gtk_tree_view_get_model(self->priv->tcpview);
+    GtkListStore *store = (GtkListStore *) model;
+    GtkTreeIter iter;
+    if (gtk_tree_model_get_iter_first(model, &iter)) {
+        do {
+            ProcNetTcpEntry *tcp = NULL;
+            gtk_tree_model_get(model, &iter,
+                               YD_MAIN_WINDOW_TCP_COLUMNS_POINTER, &tcp,
+                               -1);
+            GList *ptr = tcps;
+            while (ptr) {
+                ProcNetTcpEntry *entry = (ProcNetTcpEntry *) ptr->data;
+                if (g_strcmp0(entry->local_address, tcp->local_address) ==
+                    0
+                    && g_strcmp0(entry->rem_address,
+                                 tcp->rem_address) == 0) {
+                    /* 在列表中找到与当前行对应的项,更新 */
+                    gtk_list_store_set(store, &iter,
+                                       YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR,
+                                       make_tcp_local_address_with_port
+                                       (entry),
+                                       YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR,
+                                       make_tcp_remote_address_with_port
+                                       (entry),
+                                       YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
+                                       make_tcp_state(entry),
+                                       YD_MAIN_WINDOW_TCP_COLUMNS_UID,
+                                       make_tcp_uid(entry),
+                                       YD_MAIN_WINDOW_TCP_COLUMNS_POINTER,
+                                       entry, -1);
+                    proc_net_tcp_entry_free(tcp);
+                    tcps = g_list_remove_link(tcps, ptr);
+                    g_list_free_1(ptr);
+                    break;
+                }
+                ptr = g_list_next(ptr);
+            }
+
+            if (ptr == NULL) {
+                /* 未找到，删除 */
+                proc_net_tcp_entry_free(tcp);
+                gtk_list_store_remove(store, &iter);
+            }
+        } while (gtk_tree_model_iter_next(model, &iter));
+    }
+
+    /* 如果列表中还有项，那么是新加入的 */
     GList *ptr = tcps;
     while (ptr) {
-        ProcNetTcpEntry *tcp = (ProcNetTcpEntry *) ptr->data;
+        ProcNetTcpEntry *entry = (ProcNetTcpEntry *) ptr->data;
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter,
-                           YD_MAIN_WINDOW_TCP_COLUMNS_INFO,
-                           "",
+                           YD_MAIN_WINDOW_TCP_COLUMNS_INFO, "",
                            YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR,
-                           make_tcp_local_address_with_port(tcp),
+                           make_tcp_local_address_with_port(entry),
                            YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR,
-                           make_tcp_remote_address_with_port(tcp),
+                           make_tcp_remote_address_with_port(entry),
                            YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
-                           make_tcp_state(tcp),
+                           make_tcp_state(entry),
                            YD_MAIN_WINDOW_TCP_COLUMNS_UID,
-                           make_tcp_uid(tcp), -1);
+                           make_tcp_uid(entry),
+                           YD_MAIN_WINDOW_TCP_COLUMNS_POINTER, entry, -1);
         ptr = g_list_next(ptr);
     }
-    proc_net_tcp_close(tcps);
+
+    g_list_free(tcps);
+    //proc_net_tcp_close (tcps);
 }
 
 static gboolean yd_main_window_update_tcp_timeout(gpointer data)
@@ -675,8 +723,8 @@ static void yd_main_window_about_item_activate(YdMainWindow * self)
                                  (GtkWindow *) self);
     gtk_window_set_modal((GtkWindow *) _data1_->dialog, TRUE);
     gtk_about_dialog_set_logo_icon_name(_data1_->dialog, "");
-    _tmp1_ = g_strdup("Wiky L(wiiiky@yeah.net)");
-    _tmp2_ = g_strdup("Xiaoduo Yuan");
+    _tmp1_ = g_strdup("Wiky L (wiiiky@yeah.net)");
+    _tmp2_ = g_strdup("Xiaoduo Yuan (531657145@qq.com)");
     _tmp3_ = g_new0(gchar *, 2 + 1);
     _tmp3_[0] = _tmp1_;
     _tmp3_[1] = _tmp2_;
@@ -686,8 +734,8 @@ static void yd_main_window_about_item_activate(YdMainWindow * self)
     _tmp4_ =
         (_vala_array_free(_tmp4_, _tmp4__length1, (GDestroyNotify) g_free),
          NULL);
-    _tmp5_ = g_strdup("Wiky L(wiiiky@yeah.net)");
-    _tmp6_ = g_strdup("Xiaoduo Yuan");
+    _tmp5_ = g_strdup("Wiky L (wiiiky@yeah.net)");
+    _tmp6_ = g_strdup("Xiaoduo Yuan (531657145@qq.com)");
     _tmp7_ = g_new0(gchar *, 2 + 1);
     _tmp7_[0] = _tmp5_;
     _tmp7_[1] = _tmp6_;

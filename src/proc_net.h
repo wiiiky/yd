@@ -53,6 +53,9 @@ GList *proc_net_tcp_open();
 
 void proc_net_tcp_close(GList * list);
 
+
+void proc_net_tcp_entry_free(void *tcp);
+
 int proc_net_tcp_entry_number(ProcNetTcpEntry * tcp);
 
 int porc_net_tcp_entry_local(ProcNetTcpEntry * tcp, uint32_t * addr,
