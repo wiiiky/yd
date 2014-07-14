@@ -12,8 +12,6 @@
 #include <string.h>
 #include <gdk/gdk.h>
 #include <pango/pango.h>
-#include <arpa/inet.h>
-#include <pwd.h>
 
 #define YD_MAIN_WINDOW_UPDATE_TIMEOUT   (1200)
 
@@ -434,94 +432,6 @@ YdMainWindow *yd_main_window_construct(GType object_type)
 YdMainWindow *yd_main_window_new(void)
 {
     return yd_main_window_construct(YD_TYPE_MAIN_WINDOW);
-}
-
-static const gchar *make_address_with_port(char *buf, uint32_t size,
-                                           uint32_t addr, uint16_t port)
-{
-    struct in_addr addr_in = { addr };
-    snprintf(buf, size, "%s:%u", inet_ntoa(addr_in), port);
-    return buf;
-}
-
-/* 返回静态缓冲区的内容 */
-static const gchar *make_tcp_local_address_with_port(ProcNetTcpEntry * tcp)
-{
-    uint32_t addr;
-    uint16_t port;
-    static gchar buf[32];
-    if (porc_net_tcp_entry_local(tcp, &addr, &port)) {
-        return NULL;
-    }
-    return make_address_with_port(buf, 32, addr, port);
-}
-
-static const gchar *make_tcp_remote_address_with_port(ProcNetTcpEntry *
-                                                      tcp)
-{
-    uint32_t addr;
-    uint16_t port;
-    static gchar buf[32];
-    if (proc_net_tcp_entry_remote(tcp, &addr, &port)) {
-        return NULL;
-    }
-    return make_address_with_port(buf, 32, addr, port);
-}
-
-static const gchar *make_tcp_state(ProcNetTcpEntry * tcp)
-{
-    static gchar buf[32];
-    if (tcp->st == NULL) {
-        snprintf(buf, 32, "UNKNOWN");
-    } else {
-        uint32_t state = strtol(tcp->st, NULL, 16);
-        switch (state) {
-            /*
-             * 状态码应该是连续的，TODO
-             */
-        case 0x0a:
-            snprintf(buf, 32, "LISTEN");
-            break;
-        case 0x09:
-            snprintf(buf, 32, "LAST_ACK");
-            break;
-        case 0x08:
-            snprintf(buf, 32, "CLOSE_WAIT");
-            break;
-        case 0x06:
-            snprintf(buf, 32, "TIME_WAIT");
-            break;
-        case 0x04:
-            snprintf(buf, 32, "FIN_WAIT1");
-            break;
-        case 0x02:
-            snprintf(buf, 32, "SYN_SENT");
-            break;
-        case 0x01:
-            snprintf(buf, 32, "ESTABLISHED");
-            break;
-        default:
-            g_debug("%u\n", state);
-            snprintf(buf, 32, "UNKNOWN");
-            break;
-        }
-    }
-
-
-    return buf;
-}
-
-
-static const gchar *make_tcp_uid(ProcNetTcpEntry * tcp)
-{
-    static gchar buf[32];
-    int uid = atoi(tcp->uid);
-    struct passwd *pwd = getpwuid(uid);
-    if (pwd == NULL) {
-        return tcp->uid;
-    }
-    snprintf(buf, 32, "%s\t(%s)", tcp->uid, pwd->pw_name);
-    return buf;
 }
 
 static void yd_main_window_update_tcp(YdMainWindow * self)

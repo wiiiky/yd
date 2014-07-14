@@ -18,11 +18,14 @@
  */
 #include "proc_net.h"
 #include "wio.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <arpa/inet.h>
+#include <pwd.h>
 
 
 static int tcpfd = -1;
@@ -310,4 +313,94 @@ int proc_net_tcp_entry_remote(ProcNetTcpEntry * tcp, uint32_t * addr,
                               uint16_t * port)
 {
     return proc_net_tcp_entry_address(tcp->rem_address, addr, port);
+}
+
+
+const gchar *make_address_with_port(char *buf, uint32_t size,
+                                    uint32_t addr, uint16_t port)
+{
+    struct in_addr addr_in = { addr };
+    snprintf(buf, size, "%s:%u", inet_ntoa(addr_in), port);
+    return buf;
+}
+
+/* 返回静态缓冲区的内容 */
+const gchar *make_tcp_local_address_with_port(ProcNetTcpEntry * tcp)
+{
+    uint32_t addr;
+    uint16_t port;
+    static gchar buf[32];
+    if (porc_net_tcp_entry_local(tcp, &addr, &port)) {
+        return NULL;
+    }
+    return make_address_with_port(buf, 32, addr, port);
+}
+
+const gchar *make_tcp_remote_address_with_port(ProcNetTcpEntry * tcp)
+{
+    uint32_t addr;
+    uint16_t port;
+    static gchar buf[32];
+    if (proc_net_tcp_entry_remote(tcp, &addr, &port)) {
+        return NULL;
+    }
+    return make_address_with_port(buf, 32, addr, port);
+}
+
+const gchar *make_tcp_state(ProcNetTcpEntry * tcp)
+{
+    static gchar buf[32];
+    if (tcp->st == NULL) {
+        snprintf(buf, 32, "UNKNOWN");
+    } else {
+        uint32_t state = strtol(tcp->st, NULL, 16);
+        switch (state) {
+            /*
+             * 状态码应该是连续的，TODO
+             */
+        case 0x0a:
+            snprintf(buf, 32, "LISTEN");
+            break;
+        case 0x09:
+            snprintf(buf, 32, "LAST_ACK");
+            break;
+        case 0x08:
+            snprintf(buf, 32, "CLOSE_WAIT");
+            break;
+        case 0x06:
+            snprintf(buf, 32, "TIME_WAIT");
+            break;
+        case 0x04:
+            snprintf(buf, 32, "FIN_WAIT1");
+            break;
+        case 0x02:
+            snprintf(buf, 32, "SYN_SENT");
+            break;
+        case 0x01:
+            snprintf(buf, 32, "ESTABLISHED");
+            break;
+        default:
+            g_debug("%u\n", state);
+            snprintf(buf, 32, "UNKNOWN");
+            break;
+        }
+    }
+
+
+    return buf;
+}
+
+static const gchar *get_username(int uid)
+{
+    struct passwd *pwd = getpwuid(uid);
+    if (pwd == NULL) {
+        return "unknown";
+    }
+    return pwd->pw_name;
+}
+
+
+const gchar *make_tcp_uid(ProcNetTcpEntry * tcp)
+{
+    return tcp->uid;
 }

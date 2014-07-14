@@ -64,4 +64,17 @@ int porc_net_tcp_entry_local(ProcNetTcpEntry * tcp, uint32_t * addr,
 int proc_net_tcp_entry_remote(ProcNetTcpEntry * tcp, uint32_t * addr,
                               uint16_t * port);
 
+const gchar *make_address_with_port(char *buf, uint32_t size,
+                                    uint32_t addr, uint16_t port);
+
+/* 返回静态缓冲区的内容 */
+const gchar *make_tcp_local_address_with_port(ProcNetTcpEntry * tcp);
+
+const gchar *make_tcp_remote_address_with_port(ProcNetTcpEntry * tcp);
+
+const gchar *make_tcp_state(ProcNetTcpEntry * tcp);
+
+
+const gchar *make_tcp_uid(ProcNetTcpEntry * tcp);
+
 #endif
