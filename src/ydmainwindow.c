@@ -92,6 +92,14 @@ static void _vala_array_destroy(gpointer array, gint array_length,
 static void _vala_array_free(gpointer array, gint array_length,
                              GDestroyNotify destroy_func);
 
+/*
+ * 双击TCP列表中的一项
+ */
+static void yd_main_window_tcpview_activated(GtkTreeView * tcpview,
+                                             GtkTreePath * path,
+                                             GtkTreeViewColumn * column,
+                                             gpointer user_data);
+
 
 static GType yd_main_window_tcp_columns_get_type(void)
 {
@@ -298,6 +306,9 @@ YdMainWindow *yd_main_window_construct(GType object_type)
     _tmp18_ = store;
     _tmp19_ = (GtkTreeView *) gtk_tree_view_new_with_model((GtkTreeModel *)
                                                            _tmp18_);
+    gtk_tree_view_set_activate_on_single_click(_tmp19_, FALSE);
+    g_signal_connect(G_OBJECT(_tmp19_), "row-activated",
+                     G_CALLBACK(yd_main_window_tcpview_activated), NULL);
     g_object_ref_sink(_tmp19_);
     _g_object_unref0(self->priv->tcpview);
     self->priv->tcpview = _tmp19_;
@@ -559,8 +570,10 @@ static void yd_main_window_update_tcp(YdMainWindow * self)
                 /* 未找到，删除 */
                 proc_net_tcp_entry_free(tcp);
                 gtk_list_store_remove(store, &iter);
+            } else {
+                gtk_tree_model_iter_next(model, &iter);
             }
-        } while (gtk_tree_model_iter_next(model, &iter));
+        } while (gtk_list_store_iter_is_valid(store, &iter));
     }
 
     /* 如果列表中还有项，那么是新加入的 */
@@ -819,6 +832,21 @@ GType yd_main_window_get_type(void)
     return yd_main_window_type_id__volatile;
 }
 
+/*
+ * 双击TCP列表中的一项
+ */
+static void yd_main_window_tcpview_activated(GtkTreeView * tcpview,
+                                             GtkTreePath * path,
+                                             GtkTreeViewColumn * column,
+                                             gpointer user_data)
+{
+    GtkTreeIter iter;
+    GtkTreeModel *model = gtk_tree_view_get_model(tcpview);
+    if (!gtk_tree_model_get_iter(model, &iter, path)) {
+        return;
+    }
+    /* TODO details */
+}
 
 static void _vala_array_destroy(gpointer array, gint array_length,
                                 GDestroyNotify destroy_func)
