@@ -13,6 +13,7 @@ namespace Yd{
 
 		private Label uid;
 		private Label uname;
+		private Label dhome;
 
 		private const int DEFAULT_WIDTH=430;
 		private const int DEFAULT_HEIGTH=350;
@@ -24,17 +25,21 @@ namespace Yd{
 		private const string SEND_QUEUE_LABEL="Send-Queue :";
 		private const string UID_LABEL="Uid :";
 		private const string UNAME_LABEL="User Name :";
+		private const string UHOME_LABEL="Home Directory :";
 
 		public TcpDetail(){
 			this.title="Connection Information";
 			this.border_width=6;
 			set_default_size(DEFAULT_WIDTH,DEFAULT_HEIGTH);
-			set_modal(true);
 			add_buttons("Close",ResponseType.CLOSE);
 			GLib.Signal.connect(this,"response",
 						(GLib.Callback)tcp_detail_response,null);
 
 			init_widget();
+		}
+
+		public new void show_dialog(){
+			this.run();
 		}
 
 		private void init_widget(){
@@ -114,6 +119,14 @@ namespace Yd{
 			uname.halign=Align.START;
 			uname.selectable=true;
 			user_grid.attach(uname,1,1,1,1);
+
+			label=new Label(UHOME_LABEL);
+			label.halign=Align.START;
+			user_grid.attach(label,0,2,1,1);
+			dhome=new Label("/home/wiky");
+			dhome.halign=Align.START;
+			dhome.selectable=true;
+			user_grid.attach(dhome,1,2,1,1);
 
 			content_area.show_all();
 		}

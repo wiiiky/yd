@@ -26,7 +26,9 @@ yd_SOURCES = \
 	proc_net.c \
 	proc_net.h \
 	ydmainwindow.h \
-	ydmainwindow.c
+	ydmainwindow.c \
+	ydtcpdetail.h \
+	ydtcpdetail.c
 
 yd_LDFLAGS = -lpcap
 

@@ -93,7 +93,8 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_yd_OBJECTS = main.$(OBJEXT) sudo.$(OBJEXT) yd.$(OBJEXT) \
-	wio.$(OBJEXT) proc_net.$(OBJEXT) ydmainwindow.$(OBJEXT)
+	wio.$(OBJEXT) proc_net.$(OBJEXT) ydmainwindow.$(OBJEXT) \
+	ydtcpdetail.$(OBJEXT)
 yd_OBJECTS = $(am_yd_OBJECTS)
 am__DEPENDENCIES_1 =
 yd_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -335,7 +336,9 @@ yd_SOURCES = \
 	proc_net.c \
 	proc_net.h \
 	ydmainwindow.h \
-	ydmainwindow.c
+	ydmainwindow.c \
+	ydtcpdetail.h \
+	ydtcpdetail.c
 
 yd_LDFLAGS = -lpcap
 yd_LDADD = $(YD_LIBS)
@@ -439,6 +442,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/yd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ydmainwindow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ydtcpdetail.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

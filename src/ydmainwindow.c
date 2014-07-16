@@ -5,6 +5,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "ydmainwindow.h"
+#include "ydtcpdetail.h"
 #include "proc_net.h"
 #include <gtk/gtk.h>
 #include <stdlib.h>
@@ -756,6 +757,8 @@ static void yd_main_window_tcpview_activated(GtkTreeView * tcpview,
     if (!gtk_tree_model_get_iter(model, &iter, path)) {
         return;
     }
+    YdTcpDetail *dialog = yd_tcp_detail_new();
+    yd_tcp_detail_show_dialog(dialog);
     /* TODO details */
 }
 

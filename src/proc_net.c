@@ -358,6 +358,9 @@ const gchar *make_tcp_state(ProcNetTcpEntry * tcp)
             /*
              * 状态码应该是连续的，TODO
              */
+        case 0x0b:
+            snprintf(buf, 32, "CLOSING");
+            break;
         case 0x0a:
             snprintf(buf, 32, "LISTEN");
             break;
@@ -367,17 +370,29 @@ const gchar *make_tcp_state(ProcNetTcpEntry * tcp)
         case 0x08:
             snprintf(buf, 32, "CLOSE_WAIT");
             break;
+        case 0x07:
+            snprintf(buf, 32, "CLOSE");
+            break;
         case 0x06:
             snprintf(buf, 32, "TIME_WAIT");
             break;
+        case 0x05:
+            snprintf(buf, 32, "FIN_WAIT2");
+            break;
         case 0x04:
             snprintf(buf, 32, "FIN_WAIT1");
+            break;
+        case 0x03:
+            snprintf(buf, 32, "SYN_RECV");
             break;
         case 0x02:
             snprintf(buf, 32, "SYN_SENT");
             break;
         case 0x01:
             snprintf(buf, 32, "ESTABLISHED");
+            break;
+        case 0x00:
+            snprintf(buf, 32, "ERROR");
             break;
         default:
             g_debug("%u\n", state);
