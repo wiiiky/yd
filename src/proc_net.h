@@ -74,7 +74,14 @@ const gchar *make_tcp_remote_address_with_port(ProcNetTcpEntry * tcp);
 
 const gchar *make_tcp_state(ProcNetTcpEntry * tcp);
 
+const gchar *make_tcp_recv_q(ProcNetTcpEntry * tcp);
+
+const gchar *make_tcp_send_q(ProcNetTcpEntry * tcp);
 
 const gchar *make_tcp_uid(ProcNetTcpEntry * tcp);
+
+const gchar *make_tcp_uname(ProcNetTcpEntry * tcp);
+
+const gchar *make_tcp_uhome(ProcNetTcpEntry * tcp);
 
 #endif

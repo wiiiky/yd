@@ -45,6 +45,17 @@ static void yd_tcp_detail_init_widget(YdTcpDetail * self);
 static void yd_tcp_detail_finalize(GObject * obj);
 
 
+static inline void yd_tcp_detail_update_internal(YdTcpDetail * self,
+                                                 const gchar * local,
+                                                 const gchar * remote,
+                                                 const gchar * state,
+                                                 const gchar * recv_q,
+                                                 const gchar * send_q,
+                                                 const gchar * uid,
+                                                 const gchar * uname,
+                                                 const gchar * dhome);
+
+
 YdTcpDetail *yd_tcp_detail_construct(GType object_type)
 {
     YdTcpDetail *self = NULL;
@@ -384,6 +395,41 @@ static void yd_tcp_detail_finalize(GObject * obj)
     G_OBJECT_CLASS(yd_tcp_detail_parent_class)->finalize(obj);
 }
 
+static inline void yd_tcp_detail_update_internal(YdTcpDetail * self,
+                                                 const gchar * local,
+                                                 const gchar * remote,
+                                                 const gchar * state,
+                                                 const gchar * recv_q,
+                                                 const gchar * send_q,
+                                                 const gchar * uid,
+                                                 const gchar * uname,
+                                                 const gchar * dhome)
+{
+    YdTcpDetailPrivate *priv = self->priv;
+    gtk_label_set_text(priv->local, local);
+    gtk_label_set_text(priv->remote, remote);
+    gtk_label_set_text(priv->state, state);
+    gtk_label_set_text(priv->recv_q, recv_q);
+    gtk_label_set_text(priv->send_q, send_q);
+    gtk_label_set_text(priv->uid, uid);
+    gtk_label_set_text(priv->uname, uname);
+    gtk_label_set_text(priv->dhome, dhome);
+}
+
+void yd_tcp_detail_update(YdTcpDetail * self, ProcNetTcpEntry * tcp)
+{
+    if (tcp == NULL) {
+        return;
+    }
+    yd_tcp_detail_update_internal(self,
+                                  make_tcp_local_address_with_port(tcp),
+                                  make_tcp_remote_address_with_port(tcp),
+                                  make_tcp_state(tcp),
+                                  make_tcp_recv_q(tcp),
+                                  make_tcp_send_q(tcp), make_tcp_uid(tcp),
+                                  make_tcp_uname(tcp),
+                                  make_tcp_uhome(tcp));
+}
 
 GType yd_tcp_detail_get_type(void)
 {
@@ -391,8 +437,12 @@ GType yd_tcp_detail_get_type(void)
     if (g_once_init_enter(&yd_tcp_detail_type_id__volatile)) {
         static const GTypeInfo g_define_type_info =
             { sizeof(YdTcpDetailClass), (GBaseInitFunc) NULL,
-(GBaseFinalizeFunc) NULL, (GClassInitFunc) yd_tcp_detail_class_init, (GClassFinalizeFunc) NULL,
-NULL, sizeof(YdTcpDetail), 0, (GInstanceInitFunc) yd_tcp_detail_instance_init, NULL };
+            (GBaseFinalizeFunc) NULL,
+                (GClassInitFunc) yd_tcp_detail_class_init,
+                (GClassFinalizeFunc) NULL,
+            NULL, sizeof(YdTcpDetail), 0,
+                (GInstanceInitFunc) yd_tcp_detail_instance_init, NULL
+        };
         GType yd_tcp_detail_type_id;
         yd_tcp_detail_type_id =
             g_type_register_static(GTK_TYPE_DIALOG, "YdTcpDetail",

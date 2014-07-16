@@ -6,6 +6,7 @@
 
 #include <glib.h>
 #include <gtk/gtk.h>
+#include "proc_net.h"
 
 G_BEGIN_DECLS
 #define YD_TYPE_TCP_DETAIL (yd_tcp_detail_get_type ())
@@ -32,6 +33,8 @@ GType yd_tcp_detail_get_type(void) G_GNUC_CONST;
 YdTcpDetail *yd_tcp_detail_new(void);
 YdTcpDetail *yd_tcp_detail_construct(GType object_type);
 void yd_tcp_detail_show_dialog(YdTcpDetail * self);
+
+void yd_tcp_detail_update(YdTcpDetail * self, ProcNetTcpEntry * tcp);
 
 
 G_END_DECLS

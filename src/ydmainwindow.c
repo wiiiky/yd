@@ -757,7 +757,11 @@ static void yd_main_window_tcpview_activated(GtkTreeView * tcpview,
     if (!gtk_tree_model_get_iter(model, &iter, path)) {
         return;
     }
+    ProcNetTcpEntry *tcp = NULL;
+    gtk_tree_model_get(model, &iter, YD_MAIN_WINDOW_TCP_COLUMNS_POINTER,
+                       &tcp, -1);
     YdTcpDetail *dialog = yd_tcp_detail_new();
+    yd_tcp_detail_update(dialog, tcp);
     yd_tcp_detail_show_dialog(dialog);
     /* TODO details */
 }

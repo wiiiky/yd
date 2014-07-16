@@ -405,6 +405,25 @@ const gchar *make_tcp_state(ProcNetTcpEntry * tcp)
     return buf;
 }
 
+const gchar *make_tcp_recv_q(ProcNetTcpEntry * tcp)
+{
+    static gchar buf[32];
+    const gchar *colon = strchr(tcp->tx_rx_queue, ':');
+    if (colon == NULL) {
+        return "";
+    }
+    colon++;
+    snprintf(buf, 32, "%d", strtol(colon, NULL, 16));
+    return buf;
+}
+
+const gchar *make_tcp_send_q(ProcNetTcpEntry * tcp)
+{
+    static gchar buf[32];
+    snprintf(buf, 32, "%d", strtol(tcp->tx_rx_queue, NULL, 16));
+    return buf;
+}
+
 static const gchar *get_username(int uid)
 {
     struct passwd *pwd = getpwuid(uid);
@@ -414,8 +433,26 @@ static const gchar *get_username(int uid)
     return pwd->pw_name;
 }
 
+static const gchar *get_userhome(int uid)
+{
+    struct passwd *pwd = getpwuid(uid);
+    if (pwd == NULL) {
+        return "unknown";
+    }
+    return pwd->pw_dir;
+}
 
 const gchar *make_tcp_uid(ProcNetTcpEntry * tcp)
 {
     return tcp->uid;
+}
+
+const gchar *make_tcp_uname(ProcNetTcpEntry * tcp)
+{
+    return get_username(atoi(tcp->uid));
+}
+
+const gchar *make_tcp_uhome(ProcNetTcpEntry * tcp)
+{
+    return get_userhome(atoi(tcp->uid));
 }
