@@ -10,7 +10,7 @@
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string.h>
+#include <inttypes.h>
 #include <gdk/gdk.h>
 #include <pango/pango.h>
 
@@ -90,6 +90,14 @@ static void _vala_array_destroy(gpointer array, gint array_length,
                                 GDestroyNotify destroy_func);
 static void _vala_array_free(gpointer array, gint array_length,
                              GDestroyNotify destroy_func);
+
+/*
+ * 从列表中查找匹配的TCP项，只匹配本地地址和端口号
+ * 找到返回TRUE，并设置GtkTreeIter *iter，否则返回FALSE
+ */
+static gboolean gtk_tree_model_find_tcp_entry(GtkTreeModel * model,
+                                              uint32_t addr, uint16_t port,
+                                              GtkTreeIter * iter);
 
 /*
  * 双击TCP列表中的一项
@@ -744,6 +752,27 @@ GType yd_main_window_get_type(void)
     return yd_main_window_type_id__volatile;
 }
 
+static gboolean gtk_tree_model_find_tcp_entry(GtkTreeModel * model,
+                                              uint32_t addr, uint16_t port,
+                                              GtkTreeIter * iter)
+{
+    if (gtk_tree_model_get_iter_first(model, iter)) {
+        do {
+            ProcNetTcpEntry *tcp = NULL;
+            uint32_t localaddr;
+            uint16_t localport;
+            gtk_tree_model_get(model, iter,
+                               YD_MAIN_WINDOW_TCP_COLUMNS_POINTER, &tcp,
+                               -1);
+            if (porc_net_tcp_entry_local(tcp, &localaddr, &localport) == 0
+                && localaddr == addr && localport == port) {
+                return TRUE;
+            }
+        } while (gtk_tree_model_iter_next(model, iter));
+    }
+    return FALSE;
+}
+
 /*
  * 双击TCP列表中的一项
  */
@@ -763,7 +792,6 @@ static void yd_main_window_tcpview_activated(GtkTreeView * tcpview,
     YdTcpDetail *dialog = yd_tcp_detail_new();
     yd_tcp_detail_update(dialog, tcp);
     yd_tcp_detail_show_dialog(dialog);
-    /* TODO details */
 }
 
 static void _vala_array_destroy(gpointer array, gint array_length,

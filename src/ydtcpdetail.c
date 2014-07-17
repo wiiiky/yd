@@ -438,10 +438,10 @@ GType yd_tcp_detail_get_type(void)
         static const GTypeInfo g_define_type_info =
             { sizeof(YdTcpDetailClass), (GBaseInitFunc) NULL,
             (GBaseFinalizeFunc) NULL,
-                (GClassInitFunc) yd_tcp_detail_class_init,
-                (GClassFinalizeFunc) NULL,
+            (GClassInitFunc) yd_tcp_detail_class_init,
+            (GClassFinalizeFunc) NULL,
             NULL, sizeof(YdTcpDetail), 0,
-                (GInstanceInitFunc) yd_tcp_detail_instance_init, NULL
+            (GInstanceInitFunc) yd_tcp_detail_instance_init, NULL
         };
         GType yd_tcp_detail_type_id;
         yd_tcp_detail_type_id =

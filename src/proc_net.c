@@ -413,14 +413,14 @@ const gchar *make_tcp_recv_q(ProcNetTcpEntry * tcp)
         return "";
     }
     colon++;
-    snprintf(buf, 32, "%d", strtol(colon, NULL, 16));
+    snprintf(buf, 32, "%ld", strtol(colon, NULL, 16));
     return buf;
 }
 
 const gchar *make_tcp_send_q(ProcNetTcpEntry * tcp)
 {
     static gchar buf[32];
-    snprintf(buf, 32, "%d", strtol(tcp->tx_rx_queue, NULL, 16));
+    snprintf(buf, 32, "%ld", strtol(tcp->tx_rx_queue, NULL, 16));
     return buf;
 }
 
