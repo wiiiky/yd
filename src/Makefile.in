@@ -93,8 +93,8 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_yd_OBJECTS = main.$(OBJEXT) sudo.$(OBJEXT) yd.$(OBJEXT) \
-	wio.$(OBJEXT) proc_net.$(OBJEXT) ydmainwindow.$(OBJEXT) \
-	ydtcpdetail.$(OBJEXT)
+	wio.$(OBJEXT) ydmainwindow.$(OBJEXT) ydtcpdetail.$(OBJEXT) \
+	procnet.$(OBJEXT) wdetect.$(OBJEXT)
 yd_OBJECTS = $(am_yd_OBJECTS)
 am__DEPENDENCIES_1 =
 yd_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -333,12 +333,14 @@ yd_SOURCES = \
 	yd.c \
 	wio.h \
 	wio.c \
-	proc_net.c \
-	proc_net.h \
 	ydmainwindow.h \
 	ydmainwindow.c \
 	ydtcpdetail.h \
-	ydtcpdetail.c
+	ydtcpdetail.c \
+	procnet.h \
+	procnet.c \
+	wdetect.c \
+	wdetect.h
 
 yd_LDFLAGS = -lpcap
 yd_LDADD = $(YD_LIBS)
@@ -437,8 +439,9 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/proc_net.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/procnet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sudo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wdetect.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/yd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ydmainwindow.Po@am__quote@

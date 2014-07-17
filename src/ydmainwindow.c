@@ -6,7 +6,7 @@
 #include <glib-object.h>
 #include "ydmainwindow.h"
 #include "ydtcpdetail.h"
-#include "proc_net.h"
+#include "procnet.h"
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>

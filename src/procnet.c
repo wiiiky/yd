@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "proc_net.h"
+#include "procnet.h"
 #include "wio.h"
 #include <stdio.h>
 #include <stdlib.h>

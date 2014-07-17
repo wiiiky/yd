@@ -23,12 +23,14 @@ yd_SOURCES = \
 	yd.c \
 	wio.h \
 	wio.c \
-	proc_net.c \
-	proc_net.h \
 	ydmainwindow.h \
 	ydmainwindow.c \
 	ydtcpdetail.h \
-	ydtcpdetail.c
+	ydtcpdetail.c \
+	procnet.h \
+	procnet.c \
+	wdetect.c \
+	wdetect.h
 
 yd_LDFLAGS = -lpcap
 

@@ -6,7 +6,7 @@
 
 #include <glib.h>
 #include <gtk/gtk.h>
-#include "proc_net.h"
+#include "procnet.h"
 
 G_BEGIN_DECLS
 #define YD_TYPE_TCP_DETAIL (yd_tcp_detail_get_type ())

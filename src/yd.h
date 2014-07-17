@@ -21,7 +21,7 @@
 
 #include "sudo.h"
 #include "ydmainwindow.h"
-#include <pcap.h>
+#include "wdetect.h"
 #include <fcntl.h>
 
 
