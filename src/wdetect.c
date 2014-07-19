@@ -33,6 +33,7 @@
 #include <linux/ip.h>
 #include <linux/tcp.h>
 #include <inttypes.h>
+#include <glib.h>
 
 /* 所有端口的链表 */
 static GList *ports = NULL;
@@ -41,6 +42,11 @@ static uint32_t localaddr = 0;
 /* 端口查找的函数 */
 static int port_compare(void *a, void *b);
 
+/* 获取本机所有的IP地址，由family指定地址域AF_INET/AF_INET6 */
+static GList *get_ips(int family);
+
+/* 释放IP地址的链表 */
+static void free_ips(GList * list);
 
 /* 获取本地IP地址 */
 int get_iface_ip(struct sockaddr_in *ip, const char *iface);
@@ -95,7 +101,7 @@ void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
             }
         }
     } else if (!tcp->syn && tcp->ack && daddr == localaddr) {
-        /* 本机受到的ACK */
+        /* 本机收到的ACK */
         GList *l =
             g_list_find_custom(ports, port_compare, (void *) (long) sport);
         if (l) {
@@ -136,7 +142,7 @@ pcap_t *capture_live(const char *iface, const char *bpf)
     localaddr = ntohl(addr.sin_addr.s_addr);
 
     /*
-     * 第一个参数, 网络接口的字符串
+     * 第一个参数, 网络接口的字符串，any或者NULL表示所有接口
      * 第二个参数, 表示对于每个数据包要抓取的大小，65535是最大值
      * 第三个参数, 表示是否打开混杂模式，指定0表示不打开
      * 第四个参数, 表示等待数据包的超时（毫秒），0表示不超时，一直等待。
@@ -161,6 +167,46 @@ pcap_t *capture_live(const char *iface, const char *bpf)
     return device;
 }
 
+static int Ioctl(int fd, int req, void *ptr)
+{
+    int ret = 0;
+  AGAIN:
+    if ((ret = ioctl(fd, req, ptr)) < 0) {
+        if (errno == EINVAL) {  /* 被中断的系统调用，一般不会发生 */
+            errno = 0;
+            goto AGAIN;
+        }
+    }
+    return ret;
+}
+
+/* 获取本机所有的IP地址 */
+static GList *get_ips(int family)
+{
+    struct ifconf ifc;
+
+    int sockfd = socket(family, SOCK_DGRAM, 0);
+
+    int lastlen = 0;
+    int len = 32 * sizeof(struct ifreq);    /* 初始化缓冲区大小，表示本地最大有32个IP地址，这个大小一般不需要再分配了 */
+    ifc.ifc_buf = NULL;
+    while (TRUE) {
+        /* 调用realloc(NULL,size)相当于malloc(size) */
+        ifc.ifc_buf = realloc(ifc.ifc_buf, len);
+        ifc.ifc_len = len;
+        if (Ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
+            /* ERROR */
+            free(ifc.ifc_buf);
+            return NULL;
+        }
+        /* TODO */
+    }
+}
+
+/* 释放IP地址的链表 */
+static void free_ips(GList * list)
+{
+}
 
 /* 获取本地IP地址,需要获取全部地址 TODO */
 int get_iface_ip(struct sockaddr_in *ip, const char *iface)
@@ -188,4 +234,28 @@ static int port_compare(void *a, void *b)
         return 0;
     }
     return -1;
+}
+
+
+void *yd_detect_thread(void *arg)
+{
+    /*
+     * tcp[13]表示tcp首部的第十三个字节，网络字节序，对应的是标志字段
+     *
+     * tcp[13]==0x12表示捕获带有SYN和ACK标志的数据包，这种数据包是对SYN的响应
+     * tcp[13]==0x10表示带有ACK的数据包，这种数据包是一般的TCP响应
+     * 如果主机受到SYN链接，那么主机会返回SYN+ACK的数据包，也就是第一种，
+     * 如果远程主机是正常链接，那么接下去还有一个ACK的确认包，
+     * 如果远程主机是攻击性的，那么就不会有一个ACK的确认包。
+     */
+    pcap_t *pcap = capture_live("any", "tcp[13]==0x12 or tcp[13]==0x10");
+    if (pcap == NULL) {
+        fprintf(stderr, "Permission???\n");
+        exit(EXIT_FAILURE);
+    }
+    pcap_loop(pcap, -1, capture_packet, NULL);
+
+    pcap_close(pcap);
+
+    return NULL;
 }

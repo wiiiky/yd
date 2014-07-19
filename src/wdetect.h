@@ -51,4 +51,10 @@ void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
 pcap_t *capture_live(const char *iface, const char *bpf);
 
 
+/*
+ * @description 检测攻击的线程
+ */
+void *yd_detect_thread(void *arg);
+
+
 #endif
