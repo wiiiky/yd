@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -32,8 +33,6 @@
 #include <linux/if_ether.h>
 #include <linux/ip.h>
 #include <linux/tcp.h>
-#include <inttypes.h>
-#include <glib.h>
 
 /* 所有端口的链表 */
 static GList *ports = NULL;
@@ -167,16 +166,20 @@ pcap_t *capture_live(const char *iface, const char *bpf)
     return device;
 }
 
-static int Ioctl(int fd, int req, void *ptr)
+static struct sockaddr *sockaddr_copy(struct sockaddr *addr)
 {
-    int ret = 0;
-  AGAIN:
-    if ((ret = ioctl(fd, req, ptr)) < 0) {
-        if (errno == EINVAL) {  /* 被中断的系统调用，一般不会发生 */
-            errno = 0;
-            goto AGAIN;
-        }
+    int len;
+#ifdef HAVE_SOCKADDR_SA_LEN
+    len = MAX(sizeof(struct sockaddr), addr->sa_len);
+#else
+    if (addr->sa_family == AF_INET6) {
+        len = sizeof(struct sockaddr_in6);
+    } else {
+        len = sizeof(struct sockaddr_in);
     }
+#endif                          /* HAVE_SOCKADDR_SA_LEN */
+    struct sockaddr *ret = (struct sockaddr *) malloc(len);
+    memcpy(ret, addr, len);
     return ret;
 }
 
@@ -184,6 +187,7 @@ static int Ioctl(int fd, int req, void *ptr)
 static GList *get_ips(int family)
 {
     struct ifconf ifc;
+    GList *ips = NULL;
 
     int sockfd = socket(family, SOCK_DGRAM, 0);
 
@@ -194,18 +198,49 @@ static GList *get_ips(int family)
         /* 调用realloc(NULL,size)相当于malloc(size) */
         ifc.ifc_buf = realloc(ifc.ifc_buf, len);
         ifc.ifc_len = len;
-        if (Ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
-            /* ERROR */
-            free(ifc.ifc_buf);
-            return NULL;
+        if (ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
+            if (errno != EINVAL || lastlen != 0) {
+                /* ERROR */
+                free(ifc.ifc_buf);
+                return ips;
+            }
+        } else if (ifc.ifc_len == lastlen) {
+            /* 成功，两次返回的长度是一致的，说明缓冲区是足够大的 */
+            break;
+        } else {
+            lastlen = ifc.ifc_len;
         }
-        /* TODO */
+        /* 缓冲区不够大，继续分配 */
+        len += 10 * sizeof(struct ifreq);
     }
+    char *ptr = ifc.ifc_buf;
+    /* 遍历struct ifreq数组 */
+    while (ptr < ifc.ifc_buf + ifc.ifc_len) {
+        struct ifreq *ifr = (struct ifreq *) ptr;
+        ptr += sizeof(struct ifreq);
+
+        if (ifr->ifr_addr.sa_family != family) {
+            continue;           /* 忽略不符合要求的地址 */
+        }
+
+        struct ifreq ifrcopy = *ifr;
+        ioctl(sockfd, SIOCGIFFLAGS, &ifrcopy);
+        if ((ifrcopy.ifr_flags & IFF_UP) == 0) {
+            continue;           /* 忽略不工作的接口 */
+        }
+
+        struct sockaddr *addr = sockaddr_copy(&(ifr->ifr_addr));
+        ips = g_list_append(ips, addr);
+    }
+
+    free(ifc.ifc_buf);
+    return ips;
 }
 
 /* 释放IP地址的链表 */
 static void free_ips(GList * list)
 {
+    g_list_free_full(list, free);
 }
 
 /* 获取本地IP地址,需要获取全部地址 TODO */
@@ -236,9 +271,24 @@ static int port_compare(void *a, void *b)
     return -1;
 }
 
+void yd_detect_run(GAsyncQueue * queue)
+{
+    GThread *thread = g_thread_new("detect", yd_detect_thread, queue);
+    g_thread_unref(thread);
+}
+
 
 void *yd_detect_thread(void *arg)
 {
+    GList *ips = get_ips(AF_INET);
+    GList *ptr = ips;
+    while (ptr) {
+        struct sockaddr_in *addr = (struct sockaddr_in *) ptr->data;
+        printf("%s\n", inet_ntoa(addr->sin_addr));
+        ptr = g_list_next(ptr);
+    }
+    free_ips(ips);
+    return NULL;
     /*
      * tcp[13]表示tcp首部的第十三个字节，网络字节序，对应的是标志字段
      *

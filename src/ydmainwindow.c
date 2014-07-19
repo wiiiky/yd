@@ -7,6 +7,7 @@
 #include "ydmainwindow.h"
 #include "ydtcpdetail.h"
 #include "procnet.h"
+#include "wdetect.h"
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
@@ -146,6 +147,7 @@ void yd_main_window_show(YdMainWindow * self)
 {
     g_return_if_fail(self != NULL);
     gtk_widget_show_all((GtkWidget *) self);
+    yd_detect_run(NULL);
 }
 
 

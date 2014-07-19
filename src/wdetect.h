@@ -20,7 +20,7 @@
 #define __W_DETECT_H__
 
 #include <pcap.h>
-#include <glib.h>
+#include <gtk/gtk.h>
 #include <inttypes.h>
 
 /* 一个syn+ack数据包的信息 */
@@ -50,6 +50,8 @@ void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
  * */
 pcap_t *capture_live(const char *iface, const char *bpf);
 
+
+void yd_detect_run(GAsyncQueue * queue);
 
 /*
  * @description 检测攻击的线程
