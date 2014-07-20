@@ -30,6 +30,8 @@ struct _YdMainWindowPrivate {
 
     guint tcp_to;
     guint udp_to;
+
+    GAsyncQueue *queue;
 };
 
 typedef enum {
@@ -147,7 +149,7 @@ void yd_main_window_show(YdMainWindow * self)
 {
     g_return_if_fail(self != NULL);
     gtk_widget_show_all((GtkWidget *) self);
-    yd_detect_run(NULL);
+    yd_detect_run(self->priv->queue);
 }
 
 
@@ -435,6 +437,8 @@ YdMainWindow *yd_main_window_construct(GType object_type)
 
     self->priv->tcp_to = 0;
     self->priv->udp_to = 0;
+
+    self->priv->queue = g_async_queue_new();
 
     return self;
 }

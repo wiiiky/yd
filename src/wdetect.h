@@ -33,8 +33,8 @@ typedef struct {
 
 /* 一个端口的信息,动态处理syn包 */
 typedef struct {
+    uint32_t localaddr;         /* 本地地址 */
     uint16_t port;              /* 端口 */
-    /*SynInfo syn[100];     *//* 简化处理，用了数组 */
     GList *syn;                 /* 链表 */
 } PortInfo;
 
@@ -52,11 +52,6 @@ pcap_t *capture_live(const char *iface, const char *bpf);
 
 
 void yd_detect_run(GAsyncQueue * queue);
-
-/*
- * @description 检测攻击的线程
- */
-void *yd_detect_thread(void *arg);
 
 
 #endif

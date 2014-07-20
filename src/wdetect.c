@@ -36,7 +36,6 @@
 
 /* 所有端口的链表 */
 static GList *ports = NULL;
-static uint32_t localaddr = 0;
 
 /* 端口查找的函数 */
 static int port_compare(void *a, void *b);
@@ -47,26 +46,39 @@ static GList *get_ips(int family);
 /* 释放IP地址的链表 */
 static void free_ips(GList * list);
 
-/* 获取本地IP地址 */
-int get_iface_ip(struct sockaddr_in *ip, const char *iface);
+/*
+ * 如果addr是本地地址，返回1，否则返回0
+ */
+static int is_localaddr(GList * list, uint32_t addr);
 
+/*
+ * @description 检测攻击的线程
+ */
+static void *yd_detect_thread(void *arg);
+
+
+typedef struct {
+    uint32_t addr;
+    uint16_t port;
+} GListCompareStruct;
 
 /* 抓取数据包的回调函数 */
 void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
                     const unsigned char *packet)
 {
     /* 链路层首部 */
-    //struct ethhdr *eth = (struct ethhdr *) packet;
+    packet = packet + 2;        /* 使用any抓取的包前面加了两个字节 表示类型？ ref http://seclists.org/tcpdump/2009/q4/73 */
+    GList *localaddrs = (GList *) arg;
     if (pkthdr->len <= 14) {    /* 简单的错误检测，一般不会有错 */
         return;
     }
 
     /* IP 首部 */
-    uint32_t saddr;
-    uint32_t daddr;
     struct iphdr *ip = (struct iphdr *) (packet + 14);
-    saddr = ntohl(ip->saddr);   /* 源IP地址 */
-    daddr = ntohl(ip->daddr);   /* 目的IP地址 */
+    uint32_t saddr = ip->saddr; /* 源IP地址 */
+    uint32_t daddr = ip->daddr; /* 目的IP地址 */
+
+    GListCompareStruct compare;
     if (ip->protocol != IPPROTO_TCP) {
         return;
     }
@@ -74,7 +86,14 @@ void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
     struct tcphdr *tcp =
         (struct tcphdr *) (((unsigned char *) ip) + ip->ihl * 4);
     uint16_t sport = ntohs(tcp->source);    /* 被链接（攻击）的端口号 */
-    if (tcp->syn && tcp->ack && saddr == localaddr) {
+
+    printf("%s:  %d\n", inet_ntoa(*((struct in_addr *) &saddr)),
+           g_list_length(ports));
+
+    compare.addr = saddr;
+    compare.port = sport;
+
+    if (tcp->syn && tcp->ack && is_localaddr(localaddrs, saddr)) {
         /* 本机发出的SYN+ACK响应 */
         SynInfo *sinfo = malloc(sizeof(SynInfo));
         sinfo->addr = daddr;
@@ -82,9 +101,10 @@ void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
         sinfo->seq_ack = ntohl(tcp->ack_seq);
 
         GList *l =
-            g_list_find_custom(ports, port_compare, (void *) (long) sport);
+            g_list_find_custom(ports, port_compare, (void *) &compare);
         if (l == NULL) {        /* 这个端口第一次 */
             PortInfo *pinfo = malloc(sizeof(PortInfo));
+            pinfo->localaddr = saddr;
             pinfo->port = sport;
             pinfo->syn = g_list_append(NULL, sinfo);
             ports = g_list_append(ports, pinfo);
@@ -99,10 +119,10 @@ void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
                 pinfo->syn = NULL;
             }
         }
-    } else if (!tcp->syn && tcp->ack && daddr == localaddr) {
+    } else if (!tcp->syn && tcp->ack && is_localaddr(localaddrs, daddr)) {
         /* 本机收到的ACK */
         GList *l =
-            g_list_find_custom(ports, port_compare, (void *) (long) sport);
+            g_list_find_custom(ports, port_compare, (void *) &compare);
         if (l) {
             PortInfo *pinfo = (PortInfo *) l->data;
             GList *slist = pinfo->syn;
@@ -133,12 +153,6 @@ pcap_t *capture_live(const char *iface, const char *bpf)
     if (iface == NULL) {
         return NULL;
     }
-
-    struct sockaddr_in addr;
-    if (!get_iface_ip(&addr, iface)) {
-        return NULL;
-    }
-    localaddr = ntohl(addr.sin_addr.s_addr);
 
     /*
      * 第一个参数, 网络接口的字符串，any或者NULL表示所有接口
@@ -243,29 +257,24 @@ static void free_ips(GList * list)
     g_list_free_full(list, free);
 }
 
-/* 获取本地IP地址,需要获取全部地址 TODO */
-int get_iface_ip(struct sockaddr_in *ip, const char *iface)
+static int is_localaddr(GList * list, uint32_t addr)
 {
-    int fd;
-    struct ifreq ifr;
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
-    ifr.ifr_addr.sa_family = AF_INET;
-    strncpy(ifr.ifr_name, iface, IFNAMSIZ - 1);
-    int ret = ioctl(fd, SIOCGIFADDR, &ifr);
-    if (ret != 0) {
-        return 0;
+    GList *ptr = list;
+    while (ptr) {
+        struct sockaddr_in *localaddr = (struct sockaddr_in *) ptr->data;
+        if (localaddr->sin_addr.s_addr == addr) {
+            return 1;
+        }
+        ptr = g_list_next(ptr);
     }
-    close(fd);
-    ip->sin_family = AF_INET;
-    ip->sin_addr = ((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr;
-    return 1;
+    return 0;
 }
 
 static int port_compare(void *a, void *b)
 {
-    uint16_t port = (uint16_t) (long) b;
+    GListCompareStruct *compare = (GListCompareStruct *) b;
     PortInfo *pinfo = (PortInfo *) a;
-    if (pinfo->port == port) {
+    if (pinfo->port == compare->port && pinfo->localaddr == compare->addr) {
         return 0;
     }
     return -1;
@@ -273,13 +282,15 @@ static int port_compare(void *a, void *b)
 
 void yd_detect_run(GAsyncQueue * queue)
 {
+    g_async_queue_ref(queue);
     GThread *thread = g_thread_new("detect", yd_detect_thread, queue);
     g_thread_unref(thread);
 }
 
 
-void *yd_detect_thread(void *arg)
+static void *yd_detect_thread(void *arg)
 {
+    GAsyncQueue *queue = (GAsyncQueue *) arg;
     GList *ips = get_ips(AF_INET);
     GList *ptr = ips;
     while (ptr) {
@@ -287,8 +298,6 @@ void *yd_detect_thread(void *arg)
         printf("%s\n", inet_ntoa(addr->sin_addr));
         ptr = g_list_next(ptr);
     }
-    free_ips(ips);
-    return NULL;
     /*
      * tcp[13]表示tcp首部的第十三个字节，网络字节序，对应的是标志字段
      *
@@ -303,9 +312,12 @@ void *yd_detect_thread(void *arg)
         fprintf(stderr, "Permission???\n");
         exit(EXIT_FAILURE);
     }
-    pcap_loop(pcap, -1, capture_packet, NULL);
+    pcap_loop(pcap, -1, capture_packet, (unsigned char *) ips);
 
     pcap_close(pcap);
+
+    free_ips(ips);
+    g_async_queue_unref(queue);
 
     return NULL;
 }
