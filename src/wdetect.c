@@ -56,7 +56,7 @@ static int is_localaddr(GList * list, uint32_t addr);
  */
 static void *yd_detect_thread(void *arg);
 
-
+/* 包裹地址和端口号，用于g_list_compare_custom */
 typedef struct {
     uint32_t addr;
     uint16_t port;

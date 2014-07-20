@@ -3,7 +3,7 @@ Maximized=1
 Geometry=1301x744+65+24
 
 [File Loader]
-Files=../../src/wdetect.c#70%%%../../src/wdetect.h#36%%%../../src/ydmainwindow.c#145%%%../../src/yd.h#24%%%../../src/ydmainwindow.h#37
+Files=../../src/wdetect.c#59%%%../../src/wdetect.h#36%%%../../src/ydmainwindow.c#145%%%../../src/yd.h#24%%%../../src/ydmainwindow.h#37
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
