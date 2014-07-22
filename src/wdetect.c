@@ -62,13 +62,20 @@ typedef struct {
     uint16_t port;
 } GListCompareStruct;
 
+typedef struct {
+    GList *ips;
+    GAsyncQueue *queue;
+} CapturePacketArgument;
+
 /* 抓取数据包的回调函数 */
-void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
+void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
                     const unsigned char *packet)
 {
+    CapturePacketArgument *arg = (CapturePacketArgument *) data;
+    GAsyncQueue *queue = arg->queue;
+    GList *ips = arg->ips;
     /* 链路层首部 */
     packet = packet + 2;        /* 使用any抓取的包前面加了两个字节 表示类型？ ref http://seclists.org/tcpdump/2009/q4/73 */
-    GList *localaddrs = (GList *) arg;
     if (pkthdr->len <= 14) {    /* 简单的错误检测，一般不会有错 */
         return;
     }
@@ -93,7 +100,7 @@ void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
     compare.addr = saddr;
     compare.port = sport;
 
-    if (tcp->syn && tcp->ack && is_localaddr(localaddrs, saddr)) {
+    if (tcp->syn && tcp->ack && is_localaddr(ips, saddr)) {
         /* 本机发出的SYN+ACK响应 */
         SynInfo *sinfo = malloc(sizeof(SynInfo));
         sinfo->addr = daddr;
@@ -119,7 +126,7 @@ void capture_packet(unsigned char *arg, const struct pcap_pkthdr *pkthdr,
                 pinfo->syn = NULL;
             }
         }
-    } else if (!tcp->syn && tcp->ack && is_localaddr(localaddrs, daddr)) {
+    } else if (!tcp->syn && tcp->ack && is_localaddr(ips, daddr)) {
         /* 本机收到的ACK */
         GList *l =
             g_list_find_custom(ports, port_compare, (void *) &compare);
@@ -288,9 +295,9 @@ void yd_detect_run(GAsyncQueue * queue)
 }
 
 
-static void *yd_detect_thread(void *arg)
+static void *yd_detect_thread(void *data)
 {
-    GAsyncQueue *queue = (GAsyncQueue *) arg;
+    GAsyncQueue *queue = (GAsyncQueue *) data;
     GList *ips = get_ips(AF_INET);
     GList *ptr = ips;
     while (ptr) {
@@ -312,7 +319,9 @@ static void *yd_detect_thread(void *arg)
         fprintf(stderr, "Permission???\n");
         exit(EXIT_FAILURE);
     }
-    pcap_loop(pcap, -1, capture_packet, (unsigned char *) ips);
+
+    CapturePacketArgument arg = { ips, queue };
+    pcap_loop(pcap, -1, capture_packet, (unsigned char *) &arg);
 
     pcap_close(pcap);
 
