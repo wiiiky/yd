@@ -102,6 +102,8 @@ static gboolean gtk_tree_model_find_tcp_entry(GtkTreeModel * model,
                                               uint32_t addr, uint16_t port,
                                               GtkTreeIter * iter);
 
+static gboolean yd_main_window_listen_timeout(gpointer data);
+
 /*
  * 双击TCP列表中的一项
  */
@@ -150,6 +152,7 @@ void yd_main_window_show(YdMainWindow * self)
     g_return_if_fail(self != NULL);
     gtk_widget_show_all((GtkWidget *) self);
     yd_detect_run(self->priv->queue);
+    g_timeout_add(500, yd_main_window_listen_timeout, self);
 }
 
 
@@ -798,6 +801,22 @@ static void yd_main_window_tcpview_activated(GtkTreeView * tcpview,
     YdTcpDetail *dialog = yd_tcp_detail_new();
     yd_tcp_detail_update(dialog, tcp);
     yd_tcp_detail_show_dialog(dialog);
+}
+
+static gboolean yd_main_window_listen_timeout(gpointer data)
+{
+    YdMainWindow *self = (YdMainWindow *) data;
+    GAsyncQueue *queue = self->priv->queue;
+
+    g_async_queue_lock(queue);
+    data = g_async_queue_try_pop_unlocked(queue);
+    if (data) {                 /* 有数据接受到 */
+        guint32 localaddr = (guint32) (long) data;
+        guint16 port = (guint16) (long) g_async_queue_pop(queue);
+        /*  TODO */
+    }
+    g_async_queue_unlock(queue);
+    return TRUE;
 }
 
 static void _vala_array_destroy(gpointer array, gint array_length,

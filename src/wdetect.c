@@ -122,6 +122,13 @@ void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
                 /* 如果没有响应的数量超过200，则认为遭到了攻击 */
                 printf("Warning: port %u is under attack!!!\n",
                        pinfo->port);
+                g_async_queue_lock(queue);
+                g_async_queue_push_unlocked(queue,
+                                            (gpointer) (long) pinfo->
+                                            localaddr);
+                g_async_queue_push_unlocked(queue,
+                                            (gpointer) (long) pinfo->port);
+                g_async_queue_unlock(queue);
                 g_list_free_full(pinfo->syn, free); /* 释放内存，避免溢出 */
                 pinfo->syn = NULL;
             }
@@ -299,12 +306,6 @@ static void *yd_detect_thread(void *data)
 {
     GAsyncQueue *queue = (GAsyncQueue *) data;
     GList *ips = get_ips(AF_INET);
-    GList *ptr = ips;
-    while (ptr) {
-        struct sockaddr_in *addr = (struct sockaddr_in *) ptr->data;
-        printf("%s\n", inet_ntoa(addr->sin_addr));
-        ptr = g_list_next(ptr);
-    }
     /*
      * tcp[13]表示tcp首部的第十三个字节，网络字节序，对应的是标志字段
      *
