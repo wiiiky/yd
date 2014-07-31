@@ -774,7 +774,8 @@ static gboolean gtk_tree_model_find_tcp_entry(GtkTreeModel * model,
                                YD_MAIN_WINDOW_TCP_COLUMNS_POINTER, &tcp,
                                -1);
             if (porc_net_tcp_entry_local(tcp, &localaddr, &localport) == 0
-                && localaddr == addr && localport == port) {
+                //&& localaddr == addr
+                && localport == port) {
                 return TRUE;
             }
         } while (gtk_tree_model_iter_next(model, iter));
@@ -812,8 +813,13 @@ static gboolean yd_main_window_listen_timeout(gpointer data)
     data = g_async_queue_try_pop_unlocked(queue);
     if (data) {                 /* 有数据接受到 */
         guint32 localaddr = (guint32) (long) data;
-        guint16 port = (guint16) (long) g_async_queue_pop(queue);
-        /*  TODO */
+        guint16 port = (guint16) (long) g_async_queue_pop_unlocked(queue);
+        GtkTreeModel *model = gtk_tree_view_get_model(self->priv->tcpview);
+        GtkTreeIter iter;
+        if (gtk_tree_model_find_tcp_entry(model, localaddr, port, &iter)) {
+            g_printf("port %u is under attack\n", port);
+        }
+
     }
     g_async_queue_unlock(queue);
     return TRUE;

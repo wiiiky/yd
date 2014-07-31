@@ -38,7 +38,7 @@
 static GList *ports = NULL;
 
 /* 端口查找的函数 */
-static int port_compare(void *a, void *b);
+static gint port_compare(gconstpointer a, gconstpointer b);
 
 /* 获取本机所有的IP地址，由family指定地址域AF_INET/AF_INET6 */
 static GList *get_ips(int family);
@@ -94,9 +94,6 @@ void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
         (struct tcphdr *) (((unsigned char *) ip) + ip->ihl * 4);
     uint16_t sport = ntohs(tcp->source);    /* 被链接（攻击）的端口号 */
 
-    printf("%s:  %d\n", inet_ntoa(*((struct in_addr *) &saddr)),
-           g_list_length(ports));
-
     compare.addr = saddr;
     compare.port = sport;
 
@@ -108,7 +105,8 @@ void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
         sinfo->seq_ack = ntohl(tcp->ack_seq);
 
         GList *l =
-            g_list_find_custom(ports, port_compare, (void *) &compare);
+            g_list_find_custom(ports, (gconstpointer) & compare,
+                               port_compare);
         if (l == NULL) {        /* 这个端口第一次 */
             PortInfo *pinfo = malloc(sizeof(PortInfo));
             pinfo->localaddr = saddr;
@@ -120,12 +118,10 @@ void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
             pinfo->syn = g_list_append(pinfo->syn, sinfo);
             if (g_list_length(pinfo->syn) >= 200) {
                 /* 如果没有响应的数量超过200，则认为遭到了攻击 */
-                printf("Warning: port %u is under attack!!!\n",
-                       pinfo->port);
                 g_async_queue_lock(queue);
                 g_async_queue_push_unlocked(queue,
-                                            (gpointer) (long) pinfo->
-                                            localaddr);
+                                            (gpointer) (long)
+                                            pinfo->localaddr);
                 g_async_queue_push_unlocked(queue,
                                             (gpointer) (long) pinfo->port);
                 g_async_queue_unlock(queue);
@@ -136,7 +132,8 @@ void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
     } else if (!tcp->syn && tcp->ack && is_localaddr(ips, daddr)) {
         /* 本机收到的ACK */
         GList *l =
-            g_list_find_custom(ports, port_compare, (void *) &compare);
+            g_list_find_custom(ports, (gconstpointer) & compare,
+                               port_compare);
         if (l) {
             PortInfo *pinfo = (PortInfo *) l->data;
             GList *slist = pinfo->syn;
@@ -284,10 +281,10 @@ static int is_localaddr(GList * list, uint32_t addr)
     return 0;
 }
 
-static int port_compare(void *a, void *b)
+static gint port_compare(gconstpointer a, gconstpointer b)
 {
-    GListCompareStruct *compare = (GListCompareStruct *) b;
-    PortInfo *pinfo = (PortInfo *) a;
+    const GListCompareStruct *compare = (const GListCompareStruct *) b;
+    const PortInfo *pinfo = (const PortInfo *) a;
     if (pinfo->port == compare->port && pinfo->localaddr == compare->addr) {
         return 0;
     }
