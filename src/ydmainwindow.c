@@ -41,6 +41,7 @@ typedef enum {
     YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
     YD_MAIN_WINDOW_TCP_COLUMNS_UID,
     YD_MAIN_WINDOW_TCP_COLUMNS_POINTER,
+    YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA,
 } YdMainWindowTcpColumns;
 
 struct _Block1Data {
@@ -314,8 +315,9 @@ YdMainWindow *yd_main_window_construct(GType object_type)
     _tmp16_ = self->priv->stack;
     gtk_box_pack_start(vbox, (GtkWidget *) _tmp16_, TRUE, TRUE, (guint) 0);
     _tmp17_ =
-        gtk_list_store_new(6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-                           G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+        gtk_list_store_new(7, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+                           G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER,
+                           G_TYPE_STRING);
     store = _tmp17_;
     _tmp18_ = store;
     _tmp19_ = (GtkTreeView *) gtk_tree_view_new_with_model((GtkTreeModel *)
@@ -336,6 +338,8 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 (GtkCellRenderer *)
                                                 _tmp22_, "text",
                                                 YD_MAIN_WINDOW_TCP_COLUMNS_INFO,
+                                                "foreground",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA,
                                                 NULL);
     _tmp23_ = self->priv->tcpview;
     _tmp24_ = cell;
@@ -344,6 +348,8 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 (GtkCellRenderer *)
                                                 _tmp24_, "text",
                                                 YD_MAIN_WINDOW_TCP_COLUMNS_LOCALADDR,
+                                                "foreground",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA,
                                                 NULL);
     _tmp25_ = self->priv->tcpview;
     _tmp26_ = cell;
@@ -352,6 +358,8 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 (GtkCellRenderer *)
                                                 _tmp26_, "text",
                                                 YD_MAIN_WINDOW_TCP_COLUMNS_REMOTEADDR,
+                                                "foreground",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA,
                                                 NULL);
     _tmp27_ = self->priv->tcpview;
     _tmp28_ = cell;
@@ -360,6 +368,8 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 (GtkCellRenderer *)
                                                 _tmp28_, "text",
                                                 YD_MAIN_WINDOW_TCP_COLUMNS_STATE,
+                                                "foreground",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA,
                                                 NULL);
     _tmp33_ = self->priv->tcpview;
     _tmp34_ = cell;
@@ -368,6 +378,8 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                                                 (GtkCellRenderer *)
                                                 _tmp34_, "text",
                                                 YD_MAIN_WINDOW_TCP_COLUMNS_UID,
+                                                "foreground",
+                                                YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA,
                                                 NULL);
     _tmp35_ =
         gtk_list_store_new(6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
@@ -817,6 +829,10 @@ static gboolean yd_main_window_listen_timeout(gpointer data)
         GtkTreeModel *model = gtk_tree_view_get_model(self->priv->tcpview);
         GtkTreeIter iter;
         if (gtk_tree_model_find_tcp_entry(model, localaddr, port, &iter)) {
+            GtkListStore *store = (GtkListStore *) model;
+            gtk_list_store_set(store, &iter,
+                               YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA, "red",
+                               -1);
             g_printf("port %u is under attack\n", port);
         }
 

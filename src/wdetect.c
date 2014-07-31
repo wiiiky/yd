@@ -104,9 +104,8 @@ void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
         sinfo->seq = ntohl(tcp->seq);
         sinfo->seq_ack = ntohl(tcp->ack_seq);
 
-        GList *l =
-            g_list_find_custom(ports, (gconstpointer) & compare,
-                               port_compare);
+        GList *l = g_list_find_custom(ports, (gconstpointer) & compare,
+                                      port_compare);
         if (l == NULL) {        /* 这个端口第一次 */
             PortInfo *pinfo = malloc(sizeof(PortInfo));
             pinfo->localaddr = saddr;
@@ -119,8 +118,7 @@ void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
             if (g_list_length(pinfo->syn) >= 200) {
                 /* 如果没有响应的数量超过200，则认为遭到了攻击 */
                 g_async_queue_lock(queue);
-                g_async_queue_push_unlocked(queue,
-                                            (gpointer) (long)
+                g_async_queue_push_unlocked(queue, (gpointer) (long)
                                             pinfo->localaddr);
                 g_async_queue_push_unlocked(queue,
                                             (gpointer) (long) pinfo->port);
@@ -131,9 +129,8 @@ void capture_packet(unsigned char *data, const struct pcap_pkthdr *pkthdr,
         }
     } else if (!tcp->syn && tcp->ack && is_localaddr(ips, daddr)) {
         /* 本机收到的ACK */
-        GList *l =
-            g_list_find_custom(ports, (gconstpointer) & compare,
-                               port_compare);
+        GList *l = g_list_find_custom(ports, (gconstpointer) & compare,
+                                      port_compare);
         if (l) {
             PortInfo *pinfo = (PortInfo *) l->data;
             GList *slist = pinfo->syn;
