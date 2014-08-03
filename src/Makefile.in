@@ -78,7 +78,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = yd$(EXEEXT)
+bin_PROGRAMS = yd$(EXEEXT) listen$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp
@@ -92,16 +92,19 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
+am_listen_OBJECTS = listen.$(OBJEXT)
+listen_OBJECTS = $(am_listen_OBJECTS)
+listen_LDADD = $(LDADD)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
 am_yd_OBJECTS = main.$(OBJEXT) sudo.$(OBJEXT) yd.$(OBJEXT) \
 	wio.$(OBJEXT) ydmainwindow.$(OBJEXT) ydtcpdetail.$(OBJEXT) \
 	procnet.$(OBJEXT) wdetect.$(OBJEXT)
 yd_OBJECTS = $(am_yd_OBJECTS)
 am__DEPENDENCIES_1 =
 yd_DEPENDENCIES = $(am__DEPENDENCIES_1)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
 yd_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(yd_LDFLAGS) $(LDFLAGS) -o $@
@@ -139,8 +142,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(yd_SOURCES)
-DIST_SOURCES = $(yd_SOURCES)
+SOURCES = $(listen_SOURCES) $(yd_SOURCES)
+DIST_SOURCES = $(listen_SOURCES) $(yd_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -344,6 +347,9 @@ yd_SOURCES = \
 
 yd_LDFLAGS = -lpcap
 yd_LDADD = $(YD_LIBS)
+listen_SOURCES = \
+	listen.c
+
 all: all-am
 
 .SUFFIXES:
@@ -428,6 +434,10 @@ clean-binPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+listen$(EXEEXT): $(listen_OBJECTS) $(listen_DEPENDENCIES) $(EXTRA_listen_DEPENDENCIES) 
+	@rm -f listen$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(listen_OBJECTS) $(listen_LDADD) $(LIBS)
+
 yd$(EXEEXT): $(yd_OBJECTS) $(yd_DEPENDENCIES) $(EXTRA_yd_DEPENDENCIES) 
 	@rm -f yd$(EXEEXT)
 	$(AM_V_CCLD)$(yd_LINK) $(yd_OBJECTS) $(yd_LDADD) $(LIBS)
@@ -438,6 +448,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/listen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/procnet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sudo.Po@am__quote@

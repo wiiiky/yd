@@ -833,7 +833,6 @@ static gboolean yd_main_window_listen_timeout(gpointer data)
             gtk_list_store_set(store, &iter,
                                YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA, "red",
                                -1);
-            g_printf("port %u is under attack\n", port);
         }
 
     }

@@ -3,7 +3,7 @@ Maximized=1
 Geometry=1301x744+65+24
 
 [File Loader]
-Files=../../src/wdetect.c#104%%%../../src/wdetect.h#54%%%../../src/ydmainwindow.c#832%%%../../src/yd.h#24%%%../../src/ydmainwindow.h#35%%%../../src/procnet.c#291
+Files=../../src/wdetect.c#104%%%../../src/wdetect.h#54%%%../../src/ydmainwindow.c#826%%%../../src/yd.h#24%%%../../src/ydmainwindow.h#35%%%../../src/procnet.c#291%%%../../src/listen.c#51%%%../../src/main.c#6
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
@@ -14,7 +14,8 @@ Run in terminal=2
 Working directories=../../.
 
 [Project Manager]
-Expand=yd%%%yd//src%%%yd//src//yd%%%yd//dist_doc%%%yd//YD%%%yd//YD//gtk+-3.0
+Shortcut=yd//src//listen
+Expand=yd%%%yd//src%%%yd//src//listen%%%yd//src//yd%%%yd//YD
 
 [Build]
 Configuration list=1:Default:%%%1:Debug:Debug%%%1:Profiling:Profiling%%%1:Optimized:Optimized%%%1:MinGW32:MinGW32

@@ -13,7 +13,8 @@ AM_CFLAGS =\
 	 -g \
 	 -pthread
 
-bin_PROGRAMS = yd
+bin_PROGRAMS = yd \
+	listen
 
 yd_SOURCES = \
 	main.c \
@@ -35,4 +36,7 @@ yd_SOURCES = \
 yd_LDFLAGS = -lpcap
 
 yd_LDADD = $(YD_LIBS)
+
+listen_SOURCES =  \
+	listen.c
 
