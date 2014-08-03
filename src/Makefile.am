@@ -14,7 +14,8 @@ AM_CFLAGS =\
 	 -pthread
 
 bin_PROGRAMS = yd \
-	listen
+	listen \
+	sockstress
 
 yd_SOURCES = \
 	main.c \
@@ -39,4 +40,7 @@ yd_LDADD = $(YD_LIBS)
 
 listen_SOURCES =  \
 	listen.c
+
+sockstress_SOURCES =  \
+	sockstress.c
 

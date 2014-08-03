@@ -3,19 +3,20 @@ Maximized=1
 Geometry=1301x744+65+24
 
 [File Loader]
-Files=../../src/wdetect.c#104%%%../../src/wdetect.h#54%%%../../src/ydmainwindow.c#826%%%../../src/yd.h#24%%%../../src/ydmainwindow.h#35%%%../../src/procnet.c#291%%%../../src/listen.c#51%%%../../src/main.c#6
+Files=../../src/wdetect.c#104%%%../../src/wdetect.h#54%%%../../src/ydmainwindow.c#826%%%../../src/yd.h#24%%%../../src/ydmainwindow.h#35%%%../../src/procnet.c#291%%%../../src/listen.c#51%%%../../src/main.c#14%%%../../src/sockstress.c#537
 
 [Document Manager]
 bookmarks=<?xml version="1.0" encoding="UTF-8"?>\n<bookmarks/>\n
 
 [Execution]
-Program uri=../../Debug/src/yd
+Program arguments=
+Program uri=../../Debug/src/yd%%%../../Debug/src/listen
 Run in terminal=2
 Working directories=../../.
 
 [Project Manager]
-Shortcut=yd//src//listen
-Expand=yd%%%yd//src%%%yd//src//listen%%%yd//src//yd%%%yd//YD
+Shortcut=yd//src//listen%%%yd//src//sockstress
+Expand=yd%%%yd//src%%%yd//src//listen%%%yd//src//sockstress%%%yd//YD
 
 [Build]
 Configuration list=1:Default:%%%1:Debug:Debug%%%1:Profiling:Profiling%%%1:Optimized:Optimized%%%1:MinGW32:MinGW32
