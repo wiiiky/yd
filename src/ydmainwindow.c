@@ -8,6 +8,7 @@
 #include "ydtcpdetail.h"
 #include "procnet.h"
 #include "wdetect.h"
+#include "notify.h"
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <string.h>
@@ -833,6 +834,9 @@ static gboolean yd_main_window_listen_timeout(gpointer data)
             gtk_list_store_set(store, &iter,
                                YD_MAIN_WINDOW_TCP_COLUMNS_FGRGBA, "red",
                                -1);
+            gchar buf[100];
+            g_snprintf(buf, 100, "端口%u正遭到攻击!!!", port);
+            yd_notify("警告", buf);
         }
 
     }

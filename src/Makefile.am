@@ -32,7 +32,9 @@ yd_SOURCES = \
 	procnet.h \
 	procnet.c \
 	wdetect.c \
-	wdetect.h
+	wdetect.h \
+	notify.c \
+	notify.h
 
 yd_LDFLAGS = -lpcap
 

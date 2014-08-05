@@ -32,7 +32,8 @@ AM_GLIB_GNU_GETTEXT
 LT_INIT
 
 
-PKG_CHECK_MODULES(YD, [gtk+-3.0 ])
+PKG_CHECK_MODULES(YD, libnotify
+[gtk+-3.0 ])
 
 AC_CHECK_LIB(pcap,pcap_open_live,[],
 			 [

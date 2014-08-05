@@ -3041,7 +3041,8 @@ m4trace:configure.ac:32: -1- m4_pattern_allow([^OTOOL64$])
 m4trace:configure.ac:32: -1- _LT_LINKER_OPTION([if $CC understands -b], [lt_cv_prog_compiler__b], [-b], [_LT_TAGVAR(archive_cmds, )='$CC -b ${wl}+h ${wl}$soname ${wl}+b ${wl}$install_libdir -o $lib $libobjs $deplibs $compiler_flags'], [_LT_TAGVAR(archive_cmds, )='$LD -b +h $soname +b $install_libdir -o $lib $libobjs $deplibs $linker_flags'])
 m4trace:configure.ac:32: -1- LT_SYS_DLOPEN_SELF
 m4trace:configure.ac:32: -1- m4_pattern_allow([^HAVE_DLFCN_H$])
-m4trace:configure.ac:35: -1- PKG_CHECK_MODULES([YD], [gtk+-3.0 ])
+m4trace:configure.ac:35: -1- PKG_CHECK_MODULES([YD], [libnotify
+gtk+-3.0 ])
 m4trace:configure.ac:35: -1- PKG_PROG_PKG_CONFIG
 m4trace:configure.ac:35: -1- m4_pattern_forbid([^_?PKG_[A-Z_]+$])
 m4trace:configure.ac:35: -1- m4_pattern_allow([^PKG_CONFIG(_(PATH|LIBDIR|SYSROOT_DIR|ALLOW_SYSTEM_(CFLAGS|LIBS)))?$])
@@ -3052,22 +3053,26 @@ m4trace:configure.ac:35: -1- m4_pattern_allow([^PKG_CONFIG_LIBDIR$])
 m4trace:configure.ac:35: -1- m4_pattern_allow([^PKG_CONFIG$])
 m4trace:configure.ac:35: -1- m4_pattern_allow([^YD_CFLAGS$])
 m4trace:configure.ac:35: -1- m4_pattern_allow([^YD_LIBS$])
-m4trace:configure.ac:35: -1- PKG_CHECK_EXISTS([gtk+-3.0 ], [pkg_cv_[]YD_CFLAGS=`$PKG_CONFIG --[]cflags "gtk+-3.0 " 2>/dev/null`
+m4trace:configure.ac:35: -1- PKG_CHECK_EXISTS([libnotify
+gtk+-3.0 ], [pkg_cv_[]YD_CFLAGS=`$PKG_CONFIG --[]cflags "libnotify
+gtk+-3.0 " 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
-m4trace:configure.ac:35: -1- PKG_CHECK_EXISTS([gtk+-3.0 ], [pkg_cv_[]YD_LIBS=`$PKG_CONFIG --[]libs "gtk+-3.0 " 2>/dev/null`
+m4trace:configure.ac:35: -1- PKG_CHECK_EXISTS([libnotify
+gtk+-3.0 ], [pkg_cv_[]YD_LIBS=`$PKG_CONFIG --[]libs "libnotify
+gtk+-3.0 " 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes ], [pkg_failed=yes])
 m4trace:configure.ac:35: -1- _PKG_SHORT_ERRORS_SUPPORTED
-m4trace:configure.ac:37: -1- m4_pattern_allow([^HAVE_LIBPCAP$])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^HAVE_LIBCAP$])
-m4trace:configure.ac:53: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
+m4trace:configure.ac:38: -1- m4_pattern_allow([^HAVE_LIBPCAP$])
+m4trace:configure.ac:44: -1- m4_pattern_allow([^HAVE_LIBCAP$])
+m4trace:configure.ac:54: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
 You should run autoupdate.], [])
-m4trace:configure.ac:53: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:53: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:53: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
-m4trace:configure.ac:53: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
-m4trace:configure.ac:53: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
-m4trace:configure.ac:53: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
-m4trace:configure.ac:53: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
-m4trace:configure.ac:53: -1- _AC_AM_CONFIG_HEADER_HOOK(["$ac_file"])
-m4trace:configure.ac:53: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
-m4trace:configure.ac:53: -1- _LT_PROG_LTMAIN
+m4trace:configure.ac:54: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:54: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
+m4trace:configure.ac:54: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
+m4trace:configure.ac:54: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
+m4trace:configure.ac:54: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
+m4trace:configure.ac:54: -1- _AC_AM_CONFIG_HEADER_HOOK(["$ac_file"])
+m4trace:configure.ac:54: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:54: -1- _LT_PROG_LTMAIN

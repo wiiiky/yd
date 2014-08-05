@@ -104,7 +104,7 @@ sockstress_OBJECTS = $(am_sockstress_OBJECTS)
 sockstress_LDADD = $(LDADD)
 am_yd_OBJECTS = main.$(OBJEXT) sudo.$(OBJEXT) yd.$(OBJEXT) \
 	wio.$(OBJEXT) ydmainwindow.$(OBJEXT) ydtcpdetail.$(OBJEXT) \
-	procnet.$(OBJEXT) wdetect.$(OBJEXT)
+	procnet.$(OBJEXT) wdetect.$(OBJEXT) notify.$(OBJEXT)
 yd_OBJECTS = $(am_yd_OBJECTS)
 am__DEPENDENCIES_1 =
 yd_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -346,7 +346,9 @@ yd_SOURCES = \
 	procnet.h \
 	procnet.c \
 	wdetect.c \
-	wdetect.h
+	wdetect.h \
+	notify.c \
+	notify.h
 
 yd_LDFLAGS = -lpcap
 yd_LDADD = $(YD_LIBS)
@@ -460,6 +462,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/listen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/notify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/procnet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sockstress.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sudo.Po@am__quote@
