@@ -427,15 +427,15 @@ YdMainWindow *yd_main_window_construct(GType object_type)
                          YD_MAIN_WINDOW_TCP_TAB_TITLE);
     _tmp49_ = self->priv->stack;
     scrollview = gtk_scrolled_window_new(NULL, NULL);
-    gtk_container_add(GTK_CONTAINER(scrollview),
+/*    gtk_container_add(GTK_CONTAINER(scrollview),
                       GTK_WIDGET(self->priv->udpview));
     gtk_stack_add_titled(_tmp49_, scrollview, YD_MAIN_WINDOW_UDP_TAB_NAME,
-                         YD_MAIN_WINDOW_UDP_TAB_TITLE);
+                         YD_MAIN_WINDOW_UDP_TAB_TITLE);*/
     _tmp51_ = self->priv->stack;
     _tmp52_ = (GtkLabel *) gtk_label_new("TODO");
     g_object_ref_sink(_tmp52_);
     _tmp53_ = _tmp52_;
-    gtk_stack_add_titled(_tmp51_, (GtkWidget *) _tmp53_, "todo", "TODO");
+/*    gtk_stack_add_titled(_tmp51_, (GtkWidget *) _tmp53_, "todo", "TODO");*/
     _g_object_unref0(_tmp53_);
     _g_object_unref0(cell);
     _g_object_unref0(store);
